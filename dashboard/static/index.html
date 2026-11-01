@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Trust Kernel Isolation Engine — Real-Time Telemetry & Attack Simulation Deck</title>
+    <meta name="description" content="Kernel-Level Zero-Trust Network Traffic Isolation Engine powered by eBPF/XDP. Line-rate packet drops in nanoseconds and microsecond trust decay.">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header class="app-header">
+        <div class="brand-wrapper">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>KERNEL ZERO-TRUST ISOLATION ENGINE</h1>
+                <p>eBPF / XDP DRIVER-LEVEL CLOSED-LOOP CONTROL PLANE</p>
+            </div>
+        </div>
+
+        <div class="header-status">
+            <div id="engineModeBadge" class="badge-mode badge-sim">
+                <span class="pulse-dot"></span> DETECTING MODE...
+            </div>
+            <div id="connectionStatus" class="badge-mode badge-sim">
+                <span class="pulse-dot"></span> <span id="connectionText">CONNECTING WS...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="dashboard-container">
+
+        <!-- Hero KPI Metrics Grid -->
+        <section class="kpi-grid">
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label"><span>🌐</span> Intercepted Frames</div>
+                <div id="statFrames" class="kpi-value">0</div>
+                <div class="kpi-subtext">NIC Driver Raw Ingress (`xdp_md`)</div>
+            </div>
+
+            <div class="kpi-card glass-panel kpi-drops">
+                <div class="kpi-label"><span>🚨</span> Quarantined Drops</div>
+                <div id="statDrops" class="kpi-value">0</div>
+                <div class="kpi-subtext">Discarded in <span class="highlight">~40 ns</span> (Pre-`sk_buff`)</div>
+            </div>
+
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label"><span>⚠️</span> Suspect Throttles</div>
+                <div id="statThrottles" class="kpi-value">0</div>
+                <div class="kpi-subtext">50% Probabilistic Rate-Limit</div>
+            </div>
+
+            <div class="kpi-card glass-panel kpi-latency">
+                <div class="kpi-label"><span>⚡</span> Isolation Latency (T_iso)</div>
+                <div class="kpi-value">38.35 <span style="font-size: 1.1rem;">µs</span></div>
+                <div class="kpi-subtext"><span class="highlight">195.5× Faster</span> than iptables (7.5ms)</div>
+            </div>
+
+            <div class="kpi-card glass-panel">
+                <div class="kpi-label"><span>💚</span> Self-Healing Rate</div>
+                <div class="kpi-value">+6.0 <span style="font-size: 1.1rem;">pts/s</span></div>
+                <div class="kpi-subtext">Autonomous Line-Rate Restoration</div>
+            </div>
+        </section>
+
+        <!-- Interactive Animated Network Topology Canvas -->
+        <section class="topology-panel glass-panel">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>📡</span> Virtual Testbed Live Topology & Datapath Flow
+                </div>
+                <div class="section-badge">10.10.0.0/24 Bridge Switch Fabric</div>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                Visualizing packet flow between virtual network namespaces. Quarantined packets are deflected and dropped directly at the NIC driver XDP hook before entering <code style="color: var(--color-cyan);">br-xdp</code>.
+            </p>
+            <div class="topology-canvas-container">
+                <canvas id="topologyCanvas"></canvas>
+            </div>
+        </section>
+
+        <!-- Workload Nodes Grid (3 Interactive Cards) -->
+        <section>
+            <div class="section-header">
+                <div class="section-title">
+                    <span>🛡️</span> Monitored Workloads & Security State Tiers
+                </div>
+                <div class="section-badge">Atomic eBPF Policy Maps</div>
+            </div>
+
+            <div class="nodes-grid">
+                <!-- Node A: Victim Target -->
+                <div id="card-10-10-0-10" class="node-card glass-panel trusted">
+                    <div class="node-card-header">
+                        <div class="node-info">
+                            <h3>Node A (Victim Target)</h3>
+                            <div class="node-meta">
+                                <span>IP: 10.10.0.10</span>
+                                <span>Port: veth-victim-br</span>
+                            </div>
+                        </div>
+                        <div class="state-badge state-trusted">
+                            <span class="pulse-dot"></span> TRUSTED
+                        </div>
+                    </div>
+
+                    <div class="trust-gauge-container">
+                        <div class="trust-gauge-meta">
+                            <span>Trust Integrity</span>
+                            <span class="trust-score-val">100.0%</span>
+                        </div>
+                        <div class="trust-gauge-bar">
+                            <div class="trust-gauge-fill fill-trusted" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="node-metrics">
+                        <div class="metric-item">
+                            <span>Ingress</span>
+                            <span class="metric-pps">1.0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>SYN / s</span>
+                            <span class="metric-syn">0.0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>Ports</span>
+                            <span class="metric-ports">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>Drops</span>
+                            <span class="metric-drops">0</span>
+                        </div>
+                    </div>
+
+                    <div class="node-actions">
+                        <button class="btn btn-danger btn-toggle-action" data-ip="10.10.0.10" data-action="block">
+                            QUARANTINE WORKLOAD
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Node B: Legitimate Tenant -->
+                <div id="card-10-10-0-20" class="node-card glass-panel trusted">
+                    <div class="node-card-header">
+                        <div class="node-info">
+                            <h3>Node B (Legitimate Tenant)</h3>
+                            <div class="node-meta">
+                                <span>IP: 10.10.0.20</span>
+                                <span>Port: veth-legit-br</span>
+                            </div>
+                        </div>
+                        <div class="state-badge state-trusted">
+                            <span class="pulse-dot"></span> TRUSTED
+                        </div>
+                    </div>
+
+                    <div class="trust-gauge-container">
+                        <div class="trust-gauge-meta">
+                            <span>Trust Integrity</span>
+                            <span class="trust-score-val">100.0%</span>
+                        </div>
+                        <div class="trust-gauge-bar">
+                            <div class="trust-gauge-fill fill-trusted" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="node-metrics">
+                        <div class="metric-item">
+                            <span>Ingress</span>
+                            <span class="metric-pps">2.0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>SYN / s</span>
+                            <span class="metric-syn">0.0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>Ports</span>
+                            <span class="metric-ports">1</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>Drops</span>
+                            <span class="metric-drops">0</span>
+                        </div>
+                    </div>
+
+                    <div class="node-actions">
+                        <button class="btn btn-danger btn-toggle-action" data-ip="10.10.0.20" data-action="block">
+                            QUARANTINE WORKLOAD
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Node C: Compromised Attacker -->
+                <div id="card-10-10-0-30" class="node-card glass-panel trusted">
+                    <div class="node-card-header">
+                        <div class="node-info">
+                            <h3>Node C (Compromised Attacker)</h3>
+                            <div class="node-meta">
+                                <span>IP: 10.10.0.30</span>
+                                <span>Port: veth-attack-br</span>
+                            </div>
+                        </div>
+                        <div class="state-badge state-trusted">
+                            <span class="pulse-dot"></span> TRUSTED
+                        </div>
+                    </div>
+
+                    <div class="trust-gauge-container">
+                        <div class="trust-gauge-meta">
+                            <span>Trust Integrity</span>
+                            <span class="trust-score-val">100.0%</span>
+                        </div>
+                        <div class="trust-gauge-bar">
+                            <div class="trust-gauge-fill fill-trusted" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="node-metrics">
+                        <div class="metric-item">
+                            <span>Ingress</span>
+                            <span class="metric-pps">0.5</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>SYN / s</span>
+                            <span class="metric-syn">0.0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>Ports</span>
+                            <span class="metric-ports">0</span>
+                        </div>
+                        <div class="metric-item">
+                            <span>Drops</span>
+                            <span class="metric-drops">0</span>
+                        </div>
+                    </div>
+
+                    <div class="node-actions">
+                        <button class="btn btn-danger btn-toggle-action" data-ip="10.10.0.30" data-action="block">
+                            QUARANTINE WORKLOAD
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Attack Simulation Control Deck -->
+        <section class="simulator-panel glass-panel">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>⚔️</span> Live Attack Simulation & Multi-Vector Stress Deck
+                </div>
+                <div>
+                    <button id="btnStopAll" class="btn btn-stop">
+                        🛑 EMERGENCY STOP ALL ATTACKS
+                    </button>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                Launch synthetic or real in-kernel attack vectors from <code style="color: var(--color-cyan);">ns-attacker</code> against <code style="color: var(--color-cyan);">10.10.0.10</code> to observe sub-millisecond trust decay, driver-level drops, and autonomous self-healing.
+            </p>
+
+            <div class="sim-deck">
+                <!-- Attack 1: SYN Flood -->
+                <div class="sim-card" data-attack="syn_flood">
+                    <div class="sim-header">
+                        <div class="sim-icon">🚨</div>
+                        <div class="sim-info">
+                            <h4>Volumetric TCP SYN Flood</h4>
+                            <p>High-rate SYN packet flood targeting Port 80</p>
+                        </div>
+                    </div>
+                    <div class="sim-code">hping3 -S -p 80 --flood 10.10.0.10</div>
+                    <button class="btn btn-sim" data-attack="syn_flood">
+                        LAUNCH SYN FLOOD
+                    </button>
+                </div>
+
+                <!-- Attack 2: Port Reconnaissance -->
+                <div class="sim-card" data-attack="port_scan">
+                    <div class="sim-header">
+                        <div class="sim-icon">🔍</div>
+                        <div class="sim-info">
+                            <h4>Stealth Port Reconnaissance</h4>
+                            <p>Fast TCP SYN port scan across 1000 ports</p>
+                        </div>
+                    </div>
+                    <div class="sim-code">nmap -sS -p 1-1000 10.10.0.10</div>
+                    <button class="btn btn-sim" data-attack="port_scan">
+                        LAUNCH PORT SCAN
+                    </button>
+                </div>
+
+                <!-- Attack 3: UDP Volumetric Burst -->
+                <div class="sim-card" data-attack="udp_flood">
+                    <div class="sim-header">
+                        <div class="sim-icon">💥</div>
+                        <div class="sim-info">
+                            <h4>UDP Volumetric Flood</h4>
+                            <p>Volumetric UDP datagram burst on DNS Port 53</p>
+                        </div>
+                    </div>
+                    <div class="sim-code">hping3 --udp -p 53 --flood 10.10.0.10</div>
+                    <button class="btn btn-sim" data-attack="udp_flood">
+                        LAUNCH UDP FLOOD
+                    </button>
+                </div>
+
+                <!-- Action 4: Legit Baseline -->
+                <div class="sim-card" data-attack="legit">
+                    <div class="sim-header">
+                        <div class="sim-icon">🟢</div>
+                        <div class="sim-info">
+                            <h4>Legitimate Tenant Traffic</h4>
+                            <p>Baseline ping & microservice transactions</p>
+                        </div>
+                    </div>
+                    <div class="sim-code">ping -i 0.2 10.10.0.10</div>
+                    <button class="btn btn-sim" data-attack="legit">
+                        START LEGIT TRAFFIC
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Charts Grid (4 Chart.js Canvases) -->
+        <section class="charts-grid">
+            <!-- Chart 1: Ingress PPS -->
+            <div class="chart-card glass-panel">
+                <div class="section-title" style="margin-bottom: 0.75rem;">
+                    <span>📈</span> Ingress Packets Per Second (PPS)
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="chartPps"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 2: Trust Trajectory -->
+            <div class="chart-card glass-panel">
+                <div class="section-title" style="margin-bottom: 0.75rem;">
+                    <span>📉</span> Dynamic Workload Trust Scores (0 - 100%)
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="chartTrust"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 3: Threat Penalty Breakdown -->
+            <div class="chart-card glass-panel">
+                <div class="section-title" style="margin-bottom: 0.75rem;">
+                    <span>📊</span> Threat Penalty Breakdown (P_pps, P_syn, P_scan)
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="chartPenalty"></canvas>
+                </div>
+            </div>
+
+            <!-- Chart 4: Mitigation Latency Comparison -->
+            <div class="chart-card glass-panel">
+                <div class="section-title" style="margin-bottom: 0.75rem;">
+                    <span>⚡</span> Policy Mitigation Latency (T_isolate in µs)
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="chartLatency"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Security State Transitions & Microsecond Audit Feed -->
+        <section class="audit-panel glass-panel">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>📜</span> Live Security State Transitions & Microsecond Audit Feed
+                </div>
+                <div class="section-badge">Ring Buffer Event Stream</div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="audit-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Workload Node & IP</th>
+                            <th>State Verdict</th>
+                            <th>T_isolate (µs)</th>
+                            <th>Trust Score</th>
+                            <th>Causal Trigger / Vector</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                                Listening for in-kernel state transitions...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>
+            Kernel-Level Zero-Trust Traffic Isolation Engine | eBPF/XDP High-Performance Research Capstone
+        </p>
+        <p style="margin-top: 0.4rem; color: var(--text-secondary);">
+            Enforcing driver-level micro-isolation in nanoseconds before <code>sk_buff</code> allocation.
+        </p>
+    </footer>
+
+    <!-- App JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
