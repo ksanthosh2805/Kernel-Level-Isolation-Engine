@@ -1,0 +1,25 @@
+{
+  "project-pulse": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "python3 /home/daemon_targaryen/kernel-isolation-engine/.agents/scripts/pulse_hook.py",
+        "timeout": 5
+      }
+    ]
+  },
+  "project-audit": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/daemon_targaryen/kernel-isolation-engine/.agents/scripts/post_edit_hook.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

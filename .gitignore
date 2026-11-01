@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C / Object files / Shared libraries
+*.o
+*.so
+*.out
+
+# Environments and caches
+.pytest_cache/
+.coverage
+htmlcov/
+.env
+venv/
+ENV/
+env/
+
+# Editor files & temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+*.log
+*.tmp
+scratch/
+
+# Local system caches
+.system_generated/
