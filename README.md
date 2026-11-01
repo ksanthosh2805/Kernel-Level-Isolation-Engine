@@ -45,10 +45,10 @@ An academic capstone and high-performance network security research project impl
  +----------------------------------------------------------------------------------------------------+
  |                                          PRESENTATION PLANE                                        |
  |   +--------------------------------------------------------------------------------------------+   |
- |   |        FastAPI WebSockets Dashboard (http://localhost:8000)                               |   |
+ |   |        FastAPI WebSockets Dashboard (http://localhost:8000)                                |   |
  |   |  - 4 Real-Time Chart.js Visualizations (PPS, Trust Trajectory, Penalties, Latency)         |   |
  |   |  - Interactive HTML5 Topology Canvas with Animated Particle Deflection & XDP Drop Barrier  |   |
- |   |  - One-Click Attack Simulator (SYN Flood, Port Scan, UDP Flood, Emergency Stop)           |   |
+ |   |  - One-Click Attack Simulator (SYN Flood, Port Scan, UDP Flood, Emergency Stop)            |   |
  |   |  - Real-Time Microsecond State Transition Audit Feed                                       |   |
  |   +--------------------------------------------------------------------------------------------+   |
  +----------------------------------------------▲-----------------------------------------------------+
@@ -352,7 +352,7 @@ If you use or reference this architecture in academic research, capstone evaluat
 
 ```bibtex
 @misc{kernel_isolation_engine_2026,
-  author       = {K. Santhosh},
+  author       = {Santhosh K},
   title        = {Kernel-Level Zero-Trust Network Traffic Isolation Engine (eBPF/XDP)},
   year         = {2026},
   publisher    = {GitHub},
