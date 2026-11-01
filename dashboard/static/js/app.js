@@ -334,9 +334,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (trustData.legit.length > maxChartPoints) trustData.legit.shift();
         if (trustData.victim.length > maxChartPoints) trustData.victim.shift();
 
-        // Update Chart 1 & 2
-        if (chartPps) chartPps.update();
-        if (chartTrust) chartTrust.update();
+        // Update Chart 1 & 2 without triggering animation thrashing
+        if (chartPps) chartPps.update('none');
+        if (chartTrust) chartTrust.update('none');
 
         // Update Chart 3: Penalties
         if (chartPenalty && attackerNode && legitNode && victimNode) {
@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 legitNode.penalties.scan,
                 attackerNode.penalties.scan
             ];
-            chartPenalty.update();
+            chartPenalty.update('none');
         }
 
         // Render Transitions Audit Feed
@@ -530,35 +530,40 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.save();
             if (this.type === "legit") {
                 ctx.fillStyle = "#10b981";
-                ctx.shadowColor = "#10b981";
             } else if (this.state === 2) {
                 ctx.fillStyle = "#ef4444";
-                ctx.shadowColor = "#ef4444";
             } else if (this.state === 1) {
                 ctx.fillStyle = "#f59e0b";
-                ctx.shadowColor = "#f59e0b";
             } else {
                 ctx.fillStyle = "#06b6d4";
-                ctx.shadowColor = "#06b6d4";
             }
 
-            ctx.shadowBlur = 8;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, 3.5, 0, Math.PI * 2);
             ctx.fill();
 
-            // If shattered at XDP hook, draw impact spark
+            // If shattered at XDP hook, draw impact indicator
             if (this.shattered) {
-                ctx.fillStyle = "#ef4444";
+                ctx.strokeStyle = "#ef4444";
+                ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, 8, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, 7, 0, Math.PI * 2);
                 ctx.stroke();
             }
             ctx.restore();
         }
     }
 
-    function animateTopology() {
+    let lastAnimTime = 0;
+    const ANIM_INTERVAL = 33; // Cap animation at ~30 FPS to eliminate CPU load
+
+    function animateTopology(now) {
+        requestAnimationFrame(animateTopology);
+
+        // Throttle canvas frame rate
+        if (now - lastAnimTime < ANIM_INTERVAL) return;
+        lastAnimTime = now;
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const w = canvas.width;
@@ -571,8 +576,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const nodeVictim = { x: w * 0.85, y: h * 0.50, label: "Node A (10.10.0.10)", color: "#06b6d4" };
 
         // Draw Interconnect Links
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
 
         // Attacker -> Bridge
         ctx.beginPath();
@@ -592,17 +597,17 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.lineTo(nodeVictim.x, nodeVictim.y);
         ctx.stroke();
 
-        // Spawn particles
-        if (Math.random() < 0.3) {
-            particles.push(new PacketParticle(nodeLegit, bridgeXdp, "legit", 0));
-        }
-        if (Math.random() < (topologyState.attackerPps > 50 ? 0.8 : 0.2)) {
-            particles.push(new PacketParticle(nodeAttacker, bridgeXdp, "attacker", topologyState.attackerState));
-        }
-
-        // Bridge forwarder to victim
-        if (Math.random() < 0.25) {
-            particles.push(new PacketParticle(bridgeXdp, nodeVictim, "legit", 0));
+        // Spawn particles (capped at 10 particles max)
+        if (particles.length < 10) {
+            if (Math.random() < 0.25) {
+                particles.push(new PacketParticle(nodeLegit, bridgeXdp, "legit", 0));
+            }
+            if (Math.random() < (topologyState.attackerPps > 50 ? 0.6 : 0.2)) {
+                particles.push(new PacketParticle(nodeAttacker, bridgeXdp, "attacker", topologyState.attackerState));
+            }
+            if (Math.random() < 0.2) {
+                particles.push(new PacketParticle(bridgeXdp, nodeVictim, "legit", 0));
+            }
         }
 
         // Update & draw particles
@@ -612,17 +617,15 @@ document.addEventListener("DOMContentLoaded", () => {
             return alive;
         });
 
-        // Draw Node Markers
+        // Draw Node Markers (Fast rendering without shadowBlur)
         [nodeAttacker, nodeLegit, bridgeXdp, nodeVictim].forEach(node => {
             ctx.save();
             ctx.fillStyle = "#0d121f";
             ctx.strokeStyle = node.color;
-            ctx.lineWidth = 3;
-            ctx.shadowColor = node.color;
-            ctx.shadowBlur = 12;
+            ctx.lineWidth = 2.5;
 
             ctx.beginPath();
-            ctx.arc(node.x, node.y, 14, 0, Math.PI * 2);
+            ctx.arc(node.x, node.y, 12, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
 
@@ -630,8 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.font = "11px 'JetBrains Mono', monospace";
             ctx.fillStyle = "#f8fafc";
             ctx.textAlign = "center";
-            ctx.shadowBlur = 0;
-            ctx.fillText(node.label, node.x, node.y + 28);
+            ctx.fillText(node.label, node.x, node.y + 24);
             ctx.restore();
         });
 
@@ -642,21 +644,17 @@ document.addEventListener("DOMContentLoaded", () => {
             const barrierY = (nodeAttacker.y + bridgeXdp.y) * 0.55;
 
             ctx.strokeStyle = "#ef4444";
-            ctx.lineWidth = 4;
-            ctx.shadowColor = "#ef4444";
-            ctx.shadowBlur = 15;
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(barrierX - 12, barrierY - 12);
-            ctx.lineTo(barrierX + 12, barrierY + 12);
+            ctx.moveTo(barrierX - 10, barrierY - 10);
+            ctx.lineTo(barrierX + 10, barrierY + 10);
             ctx.stroke();
 
             ctx.fillStyle = "#ef4444";
             ctx.font = "bold 10px 'JetBrains Mono', monospace";
-            ctx.fillText("XDP_DROP", barrierX, barrierY - 14);
+            ctx.fillText("XDP_DROP", barrierX, barrierY - 12);
             ctx.restore();
         }
-
-        requestAnimationFrame(animateTopology);
     }
 
     // =========================================================================
@@ -666,3 +664,4 @@ document.addEventListener("DOMContentLoaded", () => {
     connectWebSocket();
     requestAnimationFrame(animateTopology);
 });
+

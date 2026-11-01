@@ -504,7 +504,7 @@ async def websocket_telemetry(websocket: WebSocket):
         while True:
             snapshot = bridge.get_snapshot()
             await websocket.send_text(json.dumps(snapshot))
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(1.0)
     except WebSocketDisconnect:
         pass
     except Exception:
