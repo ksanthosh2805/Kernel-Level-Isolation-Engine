@@ -101,12 +101,18 @@ sudo ip netns exec ns-attacker ping -c 2 10.10.0.10
    - Attack B: `sudo ip netns exec ns-attacker hping3 -S -p 80 --faster -c 2500 10.10.0.10`
    - Observe Terminal 1 auto-transitioning `10.10.0.30` into `SUSPECT` then `QUARANTINED` in 27–51 µs, and self-healing back to `TRUSTED` (+6.0/s) when attack ceases.
 
-### Runbook 4: Phase 3 Real-Time Dashboard (Upcoming)
-1. Launch daemon + web server: `sudo python3 ~/kernel-isolation-engine/dashboard/app.py`
-2. Open browser at `http://localhost:8000`.
-3. Launch attack in Terminal 2; observe real-time Chart.js gauges transition from Green (`TRUSTED`) to Amber (`SUSPECT`) to Red (`QUARANTINED`).
+### Runbook 4: Phase 3 Real-Time Dashboard & Attack Control Deck
+**Status: COMPLETED & VERIFIED LIVE [OK]** (FastAPI WebSocket telemetry, 60 FPS obsidian dark mode UI, 4 Chart.js charts, animated particle topology canvas, and one-click attack simulator)
+1. **Launch Server**: `sudo python3 ~/kernel-isolation-engine/dashboard/app.py`
+2. **Access Dashboard**: Open browser (Firefox) to `http://localhost:8000`.
+3. **Trigger Attacks**: Click "LAUNCH SYN FLOOD" or "LAUNCH PORT SCAN" in the web UI. Observe:
+   - Live terminal prints continuous ANSI telemetry tables matching Phase 2.
+   - Web UI charts plot PPS and trust score decay in real time.
+   - Animated topology particles turn red and shatter at the driver hook barrier.
+4. **Emergency Stop**: Click "EMERGENCY STOP ALL ATTACKS" to terminate flood processes and observe autonomous self-healing at $+6.0\,\text{pts/sec}$.
+5. **Standalone Mode**: If launched without root (`python3 dashboard/app.py`), runs interactive simulator for testing UI without needing netns or sudo.
 
-### Runbook 5: Phase 4 Quantitative Benchmarks (Upcoming)
+### Runbook 5: Phase 4 Quantitative Benchmarks (Upcoming Tomorrow)
 1. Execute: `sudo bash ~/kernel-isolation-engine/benchmarks/run_benchmarks.sh`
 2. Generates CSV logs for:
    - Mitigation Latency $T_{\text{isolate}}$ ($15\text{--}45\,\mu\text{s}$ vs $3,000\text{--}12,000\,\mu\text{s}$ for `iptables`)

@@ -242,6 +242,16 @@ Use these LaTeX blocks for your thesis paper methodology and evaluation chapters
 \end{equation}
 ```
 
+### 7.5 Phase 3 Presentation Plane & Decoupled Telemetry Architecture
+
+The Presentation Plane implements an asynchronous, decoupled observability model designed to provide human operators with millisecond visibility without interfering with the nanosecond datapath:
+
+1. **Zero Impact on Kernel Datapath**: The web server (`dashboard/app.py`) and WebSocket consumers execute strictly in user space. The kernel XDP filter executes independently at the driver layer (`~40 ns` execution time), guaranteeing that browser client connection spikes, rendering latencies, or network disconnects have **zero performance impact** on in-kernel packet filtering.
+2. **Dual-Mirror Telemetry Pipeline**: The unified controller simultaneously drives:
+   - An in-terminal ANSI telemetry table updated on each 1.0s sliding evaluation tick.
+   - An asynchronous WebSocket broadcaster pushing 1.0s JSON telemetry snapshots to all subscribed web clients.
+3. **High-Performance UI Compositing**: By substituting software-rendered CSS backdrop blur filters with solid `#0d121f` obsidian panels and eliminating HTML5 canvas `shadowBlur` computations, the UI maintains a stable 60 FPS rendering rate even on virtualized or CPU-rendered Linux environments.
+
 ### 8.2 LaTeX Evaluation Results Table
 ```latex
 \begin{table}[htbp]

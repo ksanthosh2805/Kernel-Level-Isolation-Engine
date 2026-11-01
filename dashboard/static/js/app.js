@@ -446,6 +446,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".btn-sim").forEach(btn => {
         btn.addEventListener("click", async (e) => {
             const attackType = e.currentTarget.getAttribute("data-attack");
+            const originalText = e.currentTarget.innerHTML;
+            e.currentTarget.innerHTML = "LAUNCHING...";
+
+            // Highlight card immediately
+            document.querySelectorAll(".sim-card").forEach(c => c.classList.remove("active-sim"));
+            const parentCard = e.currentTarget.closest(".sim-card");
+            if (parentCard) parentCard.classList.add("active-sim");
+
             try {
                 await fetch("/api/attack/start", {
                     method: "POST",
@@ -454,18 +462,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             } catch (err) {
                 console.error("Attack trigger failed:", err);
+            } finally {
+                setTimeout(() => { e.currentTarget.innerHTML = originalText; }, 1200);
             }
         });
     });
 
-    // Emergency Stop
-    document.getElementById("btnStopAll").addEventListener("click", async () => {
+    // Emergency Stop with immediate visual feedback
+    const btnStopAll = document.getElementById("btnStopAll");
+    btnStopAll.addEventListener("click", async () => {
+        const originalText = btnStopAll.innerHTML;
+        btnStopAll.innerHTML = "⏳ STOPPING ATTACKS...";
+        document.querySelectorAll(".sim-card").forEach(c => c.classList.remove("active-sim"));
+
         try {
-            await fetch("/api/attack/stop", { method: "POST" });
+            const res = await fetch("/api/attack/stop", { method: "POST" });
+            const data = await res.json();
+            btnStopAll.innerHTML = "✓ ATTACKS STOPPED";
+            setTimeout(() => { btnStopAll.innerHTML = originalText; }, 1500);
+
+            // Trigger an immediate manual refresh
+            fetch("/api/status")
+                .then(r => r.json())
+                .then(data => handleTelemetryData(data))
+                .catch(() => {});
         } catch (err) {
             console.error("Stop attack failed:", err);
+            btnStopAll.innerHTML = originalText;
         }
     });
+
+    // Fallback polling if WebSocket is reconnecting
+    setInterval(async () => {
+        if (!isConnected) {
+            try {
+                const res = await fetch("/api/status");
+                if (res.ok) {
+                    const data = await res.json();
+                    handleTelemetryData(data);
+                }
+            } catch (e) {
+                // Ignore silent fetch errors
+            }
+        }
+    }, 1500);
 
     // Policy Override (Block / Allow)
     document.querySelectorAll(".btn-toggle-action").forEach(btn => {

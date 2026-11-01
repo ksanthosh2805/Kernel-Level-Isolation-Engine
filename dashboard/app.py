@@ -152,6 +152,7 @@ class TelemetryBridge:
 
     def _live_kernel_loop(self):
         last_eval = time.time()
+        print("[*] Live Kernel eBPF Telemetry loop active.")
         while self.running and self.daemon and self.daemon.running:
             try:
                 self.daemon.bpf.ring_buffer_poll(timeout=50)
@@ -180,18 +181,25 @@ class TelemetryBridge:
                                 if len(self.transitions) > 50:
                                     self.transitions.pop(0)
 
-                    # Update diagnostic telemetry counters
+                    # Update diagnostic telemetry counters safely using ctypes keys
                     with self.lock:
                         diag = self.daemon.diag_map
-                        self.global_counters["frames_intercepted"] = diag[0].value if 0 in diag else 0
-                        self.global_counters["ipv4_verified"] = diag[1].value if 1 in diag else 0
-                        self.global_counters["tcp_intercepted"] = diag[2].value if 2 in diag else 0
-                        self.global_counters["udp_intercepted"] = diag[3].value if 3 in diag else 0
-                        self.global_counters["quarantined_drops"] = diag[4].value if 4 in diag else 0
-                        self.global_counters["suspect_throttles"] = diag[5].value if 5 in diag else 0
+                        try:
+                            self.global_counters["frames_intercepted"] = diag[ctypes.c_int(0)].value
+                            self.global_counters["ipv4_verified"] = diag[ctypes.c_int(1)].value
+                            self.global_counters["tcp_intercepted"] = diag[ctypes.c_int(2)].value
+                            self.global_counters["udp_intercepted"] = diag[ctypes.c_int(3)].value
+                            self.global_counters["quarantined_drops"] = diag[ctypes.c_int(7)].value
+                            self.global_counters["suspect_throttles"] = diag[ctypes.c_int(6)].value
+                        except Exception:
+                            pass
+
+                    # LIVE TERMINAL TELEMETRY DASHBOARD OUTPUT (matches Phase 2)
+                    self.daemon.print_telemetry_dashboard()
 
                     last_eval = now
             except Exception as e:
+                print(f"[-] Live kernel loop error: {e}")
                 time.sleep(0.5)
 
     def _sim_loop(self):
@@ -301,10 +309,13 @@ class TelemetryBridge:
                 nodes_list = []
                 for ip, profile in self.daemon.workloads.items():
                     drop_val = 0
-                    if self.daemon.drop_map:
-                        ip_u32 = ip_to_u32(ip)
-                        if ip_u32 in self.daemon.drop_map:
-                            drop_val = self.daemon.drop_map[ip_u32].value
+                    if self.daemon.drop_map is not None:
+                        try:
+                            ip_key = ctypes.c_uint32(ip_to_u32(ip))
+                            if ip_key in self.daemon.drop_map:
+                                drop_val = self.daemon.drop_map[ip_key].value
+                        except Exception:
+                            drop_val = 0
 
                     nodes_list.append({
                         "id": f"node-{ip.replace('.', '-')}",
@@ -374,24 +385,27 @@ class TelemetryBridge:
         self.stop_attack()
         self.active_attack = attack_type
 
-        # If running as root and netns exists, launch live attack process
-        if os.geteuid() == 0 and os.path.exists("/var/run/netns/ns-attacker"):
-            try:
-                if attack_type == "syn_flood":
-                    cmd = "ip netns exec ns-attacker hping3 -S -p 80 --flood 10.10.0.10"
-                elif attack_type == "port_scan":
-                    cmd = "ip netns exec ns-attacker nmap -sS -p 1-1000 10.10.0.10"
-                elif attack_type == "udp_flood":
-                    cmd = "ip netns exec ns-attacker hping3 --udp -p 53 --flood 10.10.0.10"
-                else:
-                    cmd = "ip netns exec ns-legit ping -i 0.2 10.10.0.10"
+        # Select target command list
+        if attack_type == "syn_flood":
+            cmd = ["ip", "netns", "exec", "ns-attacker", "hping3", "-S", "-p", "80", "--flood", "10.10.0.10"]
+        elif attack_type == "port_scan":
+            cmd = ["ip", "netns", "exec", "ns-attacker", "nmap", "-sS", "-p", "1-1000", "10.10.0.10"]
+        elif attack_type == "udp_flood":
+            cmd = ["ip", "netns", "exec", "ns-attacker", "hping3", "--udp", "-p", "53", "--flood", "10.10.0.10"]
+        else:
+            cmd = ["ip", "netns", "exec", "ns-legit", "ping", "-i", "0.2", "10.10.0.10"]
 
-                self.attack_proc = subprocess.Popen(
-                    cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, preexec_fn=os.setsid
-                )
-                print(f"[+] Started live attack process: {cmd}")
-            except Exception as e:
-                print(f"[-] Could not spawn live attack: {e}")
+        try:
+            # Spawn attack in new process group for clean SIGKILL termination
+            self.attack_proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                preexec_fn=os.setsid
+            )
+            print(f"[+] Started live attack: {' '.join(cmd)} [PID {self.attack_proc.pid}]")
+        except Exception as e:
+            print(f"[-] Could not spawn live attack: {e}")
 
         return {"status": "ATTACK_TRIGGERED", "attack": attack_type}
 
@@ -399,14 +413,19 @@ class TelemetryBridge:
         self.active_attack = None
         if self.attack_proc:
             try:
-                os.killpg(os.getpgid(self.attack_proc.pid), signal.SIGTERM)
+                os.killpg(os.getpgid(self.attack_proc.pid), signal.SIGKILL)
             except Exception:
                 pass
             self.attack_proc = None
 
-        # Clean any remaining hping3 or nmap in netns
+        # Clean all instances of attack binaries inside root and netns
+        os.system("killall -9 hping3 2>/dev/null || true")
+        os.system("killall -9 nmap 2>/dev/null || true")
         os.system("pkill -9 -f hping3 2>/dev/null || true")
         os.system("pkill -9 -f nmap 2>/dev/null || true")
+        os.system("ip netns exec ns-attacker killall -9 hping3 2>/dev/null || true")
+        os.system("ip netns exec ns-attacker killall -9 nmap 2>/dev/null || true")
+        print("[*] Emergency Stop executed: all attack processes terminated.")
         return {"status": "ATTACK_STOPPED"}
 
     def cleanup(self):
@@ -500,15 +519,19 @@ def get_benchmarks_summary():
 @app.websocket("/ws/telemetry")
 async def websocket_telemetry(websocket: WebSocket):
     await websocket.accept()
+    print("[+] Browser client connected to /ws/telemetry WebSocket stream")
     try:
         while True:
-            snapshot = bridge.get_snapshot()
-            await websocket.send_text(json.dumps(snapshot))
+            try:
+                snapshot = bridge.get_snapshot()
+                await websocket.send_text(json.dumps(snapshot))
+            except Exception as snap_err:
+                print(f"[-] Telemetry snapshot serialize error: {snap_err}")
             await asyncio.sleep(1.0)
     except WebSocketDisconnect:
-        pass
-    except Exception:
-        pass
+        print("[-] Browser client disconnected from /ws/telemetry")
+    except Exception as ws_err:
+        print(f"[-] WebSocket stream exception: {ws_err}")
 
 def main():
     import uvicorn

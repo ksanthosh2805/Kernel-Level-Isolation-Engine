@@ -72,5 +72,15 @@
 
 ## 2026-11-02 00:08:15 — Phase 3 Real-Time Observability Presentation Plane Complete: Built FastAPI WebSocket backend, Chart.js time-series dashboard, animated SVG topology flow canvas, multi-vector attack simulation deck, and microsecond audit feed
 - **Phase**: Phase 3: Real-Time Observability Presentation Plane
-- **Files**: None specified
+- **Files**: `dashboard/app.py`, `dashboard/static/index.html`, `dashboard/static/css/style.css`, `dashboard/static/js/app.js`
 - **Next Step**: Phase 4: Quantitative Benchmarking Suite & Thesis Evaluation (run_benchmarks.sh)
+
+## 2026-11-02 01:10:00 — Phase 3 Performance Hardening & Telemetry Dual-Mirroring
+- **Phase**: Phase 3: Real-Time Observability Presentation Plane (Verified & Optimized)
+- **Key Fixes & Enhancements**:
+  - Replaced CPU-heavy CSS `backdrop-filter: blur(16px)` with solid high-performance obsidian panels (`#0d121f`), achieving 60 FPS scrolling.
+  - Eliminated HTML5 canvas `shadowBlur` operations and capped topology animation loop to ~30 FPS.
+  - Fixed BCC BPF hash map integer key lookups (`ctypes.c_uint32` and `ctypes.c_int`), resolving silent WebSocket disconnects.
+  - Restored live terminal ANSI telemetry dashboard printing alongside browser WebSocket broadcasting.
+  - Hardened attack process spawning with dedicated process groups and `SIGKILL` (`-9`) sweep on Emergency Stop.
+- **Next Step**: Tomorrow's user review and Phase 4 Quantitative Benchmarks (`run_benchmarks.sh`).

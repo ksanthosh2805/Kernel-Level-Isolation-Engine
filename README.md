@@ -5,7 +5,8 @@
 [![Runtime](https://img.shields.io/badge/Control%20Plane-Python%203.10%20%2F%20BCC-green?logo=python)](https://github.com/iovisor/bcc)
 [![Mitigation Latency](https://img.shields.io/badge/T__isolate-27.57%20--%2051.89%20%C2%B5s-brightgreen)](ACADEMIC_EVALUATION_REPORT.md)
 [![Enforcement Layer](https://img.shields.io/badge/Hook-NIC%20Driver%20(Pre--sk__buff)-red)](kernel/xdp_isolation_p2.c)
-[![Project Status](https://img.shields.io/badge/Status-Phase%202%20Verified%20%5BOK%5D-success)]()
+[![Observability](https://img.shields.io/badge/Presentation-FastAPI%20%2F%20WebSockets%20%2F%20Chart.js-blueviolet)](dashboard/app.py)
+[![Project Status](https://img.shields.io/badge/Status-Phase%203%20Verified%20%5BOK%5D-success)]()
 [![License](https://img.shields.io/badge/License-Dual%20GPL--2.0%20%2F%20MIT-lightgrey)](LICENSE)
 
 An academic capstone and high-performance network security research project implementing a **closed-loop Zero-Trust Traffic Isolation Engine** directly at the operating system's Network Interface Card (NIC) driver layer using **eBPF (Extended Berkeley Packet Filter)** and **XDP (eXpress Data Path)**.
@@ -16,11 +17,13 @@ An academic capstone and high-performance network security research project impl
 
 > *"In modern cloud and multi-tenant containerized environments, traditional firewalls like `iptables`, `nftables`, and user-space service mesh proxies fail under volumetric floods. They force the Linux kernel to allocate heavy socket buffers (`sk_buff`) and execute stateful connection tracking (`conntrack`) before rules can be evaluated, causing CPU softirq starvation and dropping legitimate packets.*
 >
-> *Our project resolves this fundamental resource asymmetry by enforcing Zero-Trust security directly at the NIC driver layer with eBPF/XDP. Unwanted frames are intercepted and dropped in nanoseconds before the kernel networking stack allocates a single byte of memory. Paired with this kernel datapath is an autonomous user-space Python daemon consuming an in-kernel Ring Buffer to calculate real-time behavioral entropy. Upon detecting SYN floods or reconnaissance scans, the daemon atomically updates kernel eBPF hash maps in **27.57 to 51.89 microseconds** ($195.5\times$ faster than `iptables`), maintaining flat CPU usage, preserving legitimate tenant throughput, and autonomously self-healing peaceful workloads without restarting services or dropping connections."*
+> *Our project resolves this fundamental resource asymmetry by enforcing Zero-Trust security directly at the NIC driver layer with eBPF/XDP. Unwanted frames are intercepted and dropped in nanoseconds before the kernel networking stack allocates a single byte of memory. Paired with this kernel datapath is an autonomous user-space Python daemon consuming an in-kernel Ring Buffer to calculate real-time behavioral entropy. Upon detecting SYN floods or reconnaissance scans, the daemon atomically updates kernel eBPF hash maps in **27.57 to 51.89 microseconds** ($195.5\times$ faster than `iptables`), maintaining flat CPU usage, preserving legitimate tenant throughput, and autonomously self-healing peaceful workloads without restarting services or dropping connections.*
+>
+> *In Phase 3, we pair this kernel enforcement with a real-time observability deck: an asynchronous FastAPI WebSocket engine broadcasting wire-speed telemetry to an interactive, high-performance Chart.js dashboard with animated topology canvas and one-click attack simulation controls."*
 
 ---
 
-## 🎯 Key Achievements & Empirical Highlights (Phases 1 & 2 Verified)
+## 🎯 Key Achievements & Empirical Highlights (Phases 1, 2 & 3 Verified)
 
 - **Driver-Level Packet Interception**: Raw Ethernet frames (`struct xdp_md`) are parsed, bounds-checked, and filtered at the driver ingress layer (`XDP_PASS` vs `XDP_DROP`).
 - **Microsecond Policy Mutation ($T_{\text{isolate}}$)**: Empirical verification under live multi-vector attacks demonstrated complete workload isolation in **$27.57\,\mu\text{s}$ to $51.89\,\mu\text{s}$** (average $38.35\,\mu\text{s}$), outperforming netfilter table reloads ($7.5\,\text{ms}$) by **$195.5\times$**.
@@ -28,6 +31,11 @@ An academic capstone and high-performance network security research project impl
 - **Autonomous Multi-Tier State Machine**: Source workloads transition dynamically between **`TRUSTED`** ($100 \rightarrow 70$), **`SUSPECT`** ($70 \rightarrow 30$, 50% probabilistic throttle), and **`QUARANTINED`** ($< 30$, 100% wire-speed drop).
 - **Zero Collateral Damage**: Under a full volumetric SYN flood directed at the victim container, the adjacent legitimate tenant container experienced **0.0% packet drops** and maintained full network throughput.
 - **Autonomous Self-Healing Engine**: Peaceful workloads dynamically regain trust at $+6.0\,\text{points/second}$, restoring line-rate communication automatically without operator intervention.
+- **Real-Time Web Presentation Plane (Phase 3)**:
+  - **FastAPI WebSocket Streaming**: Continuous 1.0s broadcast of JSON telemetry snapshots with dual live terminal ASCII mirroring.
+  - **Animated HTML5 Topology Canvas**: Visualizes inter-container packets traversing bridge `br-xdp`, with red attack streams visibly shattering into an `XDP_DROP` barrier at the driver hook.
+  - **Interactive Multi-Vector Attack Simulator**: One-click browser triggers for volumetric TCP SYN floods, stealth `nmap` port scans, UDP bursts, and clean `SIGKILL` Emergency Stop sweeps.
+  - **High-Performance Compositing**: 60 FPS obsidian dark mode (`#0d121f`) engineered specifically to avoid CPU rendering lag on software-rendered Linux displays.
 
 ---
 
@@ -35,44 +43,54 @@ An academic capstone and high-performance network security research project impl
 
 ```
  +----------------------------------------------------------------------------------------------------+
- |                                          USER SPACE (CONTROL PLANE)                                |
- |                                                                                                    |
+ |                                          PRESENTATION PLANE                                        |
  |   +--------------------------------------------------------------------------------------------+   |
- |   |                      trust_daemon.py (BCC Python 3.10 Controller)                         |   |
+ |   |        FastAPI WebSockets Dashboard (http://localhost:8000)                               |   |
+ |   |  - 4 Real-Time Chart.js Visualizations (PPS, Trust Trajectory, Penalties, Latency)         |   |
+ |   |  - Interactive HTML5 Topology Canvas with Animated Particle Deflection & XDP Drop Barrier  |   |
+ |   |  - One-Click Attack Simulator (SYN Flood, Port Scan, UDP Flood, Emergency Stop)           |   |
+ |   |  - Real-Time Microsecond State Transition Audit Feed                                       |   |
+ |   +--------------------------------------------------------------------------------------------+   |
+ +----------------------------------------------▲-----------------------------------------------------+
+                                                │ WebSocket (/ws/telemetry)
+ +----------------------------------------------▼-----------------------------------------------------+
+ |                                     CONTROL PLANE (USER SPACE)                                     |
+ |   +--------------------------------------------------------------------------------------------+   |
+ |   |                      trust_daemon.py / app.py (BCC Python 3.10 Engine)                     |   |
  |   |                                                                                            |   |
  |   |  1. Ingest RingBuf Telemetry    2. Compute Penalty Entropy     3. Dynamic Trust Decay/Heal |   |
  |   |     (flow_event_t: 32 bytes)       (PPS, SYN_Rate, Ports)         (+6.0 pts/s recovery)    |   |
  |   +--------------------------------------------------------------------------------------------+   |
- |                      |                                                   |                         |
- |      Reads Telemetry | Ring Buffer Consumer            Updates Policy Map| Atomic Map Mutation     |
- |                      | (Non-blocking epoll)                              | (T_isolate: ~38 µs)     |
- +----------------------|---------------------------------------------------|-------------------------+
-                        |                                                   |
- =======================|===================================================|==========================
-                        |                   KERNEL SPACE                    v
- +----------------------|-----------------------------------------------------------------------------+
- |                      |                  eBPF / XDP DATA PLANE HOOK                                 |
- |                      v                                                                             |
+ |                      │                                                   │                         |
+ |      Reads Telemetry │ Ring Buffer Consumer            Updates Policy Map│ Atomic Map Mutation     |
+ |                      │ (Non-blocking epoll)                              │ (T_isolate: ~38 µs)     |
+ +----------------------│---------------------------------------------------│-------------------------+
+                        │                                                   │
+ =======================│===================================================│==========================
+                        │                   KERNEL SPACE                    ▼
+ +----------------------│-----------------------------------------------------------------------------+
+ |                      │                  eBPF / XDP DATA PLANE HOOK                                 |
+ |                      ▼                                                                             |
  |       +------------------------------+                +---------------------------------------+    |
  |       |  BPF_RINGBUF_OUTPUT          |                |  BPF_HASH(policy_map)                 |    |
  |       |  (telemetry_ringbuf: 256 KB) |                |  Key: IPv4 (u32) -> Val: tier (u32)   |    |
  |       +------------------------------+                +---------------------------------------+    |
- |                      ^                                                   |                         |
- |                      | Emits 32-byte flow_event_t                        | Lookups Verdict         |
- |                      |                                                   v                         |
- |   Incoming Frame     |       +-----------------------------------------------+                     |
- |  ================> [ XDP ] ->|  Ethernet -> IPv4 -> TCP/UDP Header Verifier  |                     |
+ |                      ▲                                                   │                         |
+ |                      │ Emits 32-byte flow_event_t                        │ Lookups Verdict         |
+ |                      │                                                   ▼                         |
+ |   Incoming Frame     │       +-----------------------------------------------+                     |
+ |  ================> [ XDP ] ->│  Ethernet -> IPv4 -> TCP/UDP Header Verifier  |                     |
  |   (struct xdp_md)   Hook     +-----------------------------------------------+                     |
- |   NIC Driver Layer                                   |                                             |
+ |   NIC Driver Layer                                   │                                             |
  |                                  +-------------------+-------------------+                         |
- |                                  |                   |                   |                         |
- |                                  v                   v                   v                         |
+ |                                  │                   │                   │                         |
+ |                                  ▼                   ▼                   ▼                         |
  |                           [ State: 0 ]        [ State: 1 ]        [ State: 2 ]                     |
  |                           STATE_TRUSTED       STATE_SUSPECT       STATE_QUARANTINED                |
- |                                  |                   |                   |                         |
+ |                                  │                   │                   │                         |
  |                             `XDP_PASS`          Probabilistic        `XDP_DROP`                    |
- |                                  |              Throttle (50%)           |                         |
- |                                  v                   v                   v                         |
+ |                                  │              Throttle (50%)           │                         |
+ |                                  ▼                   ▼                   ▼                         |
  |                          To Linux Protocol   Throttles SYN Floods    Dropped in ~40 ns             |
  |                             Stack (OS)       Drops alternate pkts    (Bypasses sk_buff)            |
  +----------------------------------------------------------------------------------------------------+
@@ -82,7 +100,7 @@ An academic capstone and high-performance network security research project impl
 
 ## 🧮 Mathematical Formulation of Trust Decay & Self-Healing
 
-The Control Plane daemon computes workload flow entropy across sliding temporal evaluation windows $\Delta t = 1.0\,\text{second}$.
+The Control Plane computes workload flow entropy across sliding temporal evaluation windows $\Delta t = 1.0\,\text{second}$.
 
 ### 1. Deterministic Security State Tiers
 $$\text{State}(T) = \begin{cases} 
@@ -118,11 +136,11 @@ $$\text{Trust}(t + \Delta t) = \begin{cases}
 
 ## 📊 Live Verification Telemetry & Benchmark Data
 
-### Live Phase 2 Terminal Telemetry (Captured During Verification)
+### Live Phase 2 & 3 Terminal Telemetry (Mirrored Concurrently with Web UI)
 
 ```text
 ==========================================================================================
-     KERNEL-LEVEL ZERO-TRUST ISOLATION ENGINE — DYNAMIC TELEMETRY DASHBOARD (PHASE 2)     
+     KERNEL-LEVEL ZERO-TRUST ISOLATION ENGINE — DYNAMIC TELEMETRY DASHBOARD (PHASE 2 & 3)     
 ==========================================================================================
 Interfaces Attached : veth-attack-br, veth-legit-br, veth-victim-br
 Ingress Frames Intercepted: 613          | IPv4 Frames Verified: 592
@@ -143,19 +161,9 @@ Recent Security State Transitions & Microsecond Latencies (T_isolate):
   [23:01:30] 💚 HEALED: Node C (Attacker) (10.10.0.30)      | T_iso: 31.71µs | Score: 75.4 (Restored line-rate)
   [23:02:04] 🚨 QUARANTINED: Node C (Attacker) (10.10.0.30) | T_iso: 51.89µs | Score: 8.2 | Penalty: 91.8
 ==========================================================================================
- Sliding Window: 1.0s | Self-Healing: +6.0 pts/s | Dynamic Port Sync: Active | Ctrl+C to Exit
+ Sliding Window: 1.0s | Self-Healing: +6.0 pts/s | Dynamic Port Sync: Active | Web UI: :8000
 ==========================================================================================
 ```
-
-### Empirical State Transition Timeline
-
-| Timestamp | Security State | Trust Score ($T$) | Trigger / Vector | Isolation Latency ($T_{\text{isolate}}$) | Datapath Behavior & System Response |
-| :---: | :---: | :---: | :---: | :---: | :--- |
-| `22:59:30` | **`TRUSTED`** | `100.0` | Baseline ($0.0$) | Baseline | Node C operating normally. Ingress traffic forwarded via `XDP_PASS`. |
-| `23:01:19` | **`QUARANTINED`** | `7.8` | $P_{\text{pps}} + P_{\text{syn}} = 92.2$ | **$27.57\,\mu\text{s}$** | `hping3` SYN flood detected. Trust decayed $100.0 \rightarrow 7.8$. Kernel map set to `STATE_QUARANTINED`. All attacker frames dropped at NIC driver in $\sim 40\,\text{ns}$. |
-| `23:01:23` | **`SUSPECT`** | `32.4` | Attack halted | **$42.24\,\mu\text{s}$** | Self-healing restored $+6.0\,\text{pts/s}$. Score crossed threshold $30.0$. Kernel map mutated to engage 50% probabilistic rate limiting. |
-| `23:01:30` | **`TRUSTED`** | `75.4` | Continuous peace | **$31.71\,\mu\text{s}$** | Score crossed threshold $70.0$. Full line-rate connectivity autonomously restored without service disruption. |
-| `23:02:04` | **`QUARANTINED`** | `8.2` | Secondary flood ($91.8$) | **$51.89\,\mu\text{s}$** | Second volumetric wave detected. Attacker immediately re-quarantined in $51.89\,\mu\text{s}$. |
 
 ### Comparative Performance Benchmarks: eBPF/XDP vs Traditional Firewalls
 
@@ -169,6 +177,7 @@ $$\text{Speedup Factor} = \frac{T_{\text{iptables}}}{T_{\text{XDP}}} = \frac{7,5
 | **Inter-Container Inspection** | Ignored by Perimeter Gateways | High Proxy Memory Overhead | **Line-Rate Bridge Microsegmentation** |
 | **Rule Mutation Downtime** | Rule reload causes brief packet drop | Connection drain & proxy restart | **Zero Downtime (Atomic BPF Map Updates)** |
 | **Collateral Tenant Damage** | Significant jitter and dropped packets | Queue head-of-line blocking | **0.0% packet drop on legitimate nodes** |
+| **Real-Time Observability** | Counters require polling netlink | High overhead telemetry sidecar | **Zero-Copy Ring Buffer + WebSocket Deck** |
 
 ---
 
@@ -182,10 +191,10 @@ Host Subnet: 10.10.0.0/24 | Virtual Software Bridge: br-xdp (10.10.0.1)
            +----------------------------------------------------+
            |             Virtual Bridge: br-xdp                 |
            +----------------------------------------------------+
-                   |                     |                    |
+                   │                     │                    │
         veth-victim-br        veth-legit-br        veth-attack-br
        [ XDP Hook: SKB ]     [ XDP Hook: SKB ]    [ XDP Hook: SKB ]
-                   |                     |                    |
+                   │                     │                    │
               veth-victim            veth-legit          veth-attack
         +------------------+   +------------------+  +------------------+
         |   Node A         |   |   Node B         |  |   Node C         |
@@ -206,7 +215,7 @@ Host Subnet: 10.10.0.0/24 | Virtual Software Bridge: br-xdp (10.10.0.1)
 
 ## 🛠️ Engineering Post-Mortem & Kernel Diagnostics Registry
 
-During Phase 1 and Phase 2 development, six non-trivial system-level challenges were encountered, diagnosed, and resolved:
+During Phase 1, Phase 2, and Phase 3 development, eight non-trivial system-level challenges were diagnosed and resolved:
 
 1. **Linux Bridge Forwarding Bypass**:
    - *Problem*: Attaching XDP to `br-xdp` yielded 0 intercepted frames for inter-container traffic.
@@ -218,24 +227,23 @@ During Phase 1 and Phase 2 development, six non-trivial system-level challenges 
    - *Kernel Cause*: In `net/core/dev.c` (`dev_xdp_attach`), when Generic XDP is attached to a bridge master, attaching XDP to member slave ports creates an upper/slave conflict.
    - *Solution*: Omit the bridge master `br-xdp` from attachment targets; attach exclusively to the container endpoints. Implemented automated detachment on daemon startup.
 
-3. **In-Memory Bytecode Retention vs On-Disk Edits**:
-   - *Problem*: Modifying `trust_daemon.py` on disk did not alter the running behavior of background terminal processes.
-   - *Kernel Cause*: Linux processes hold their own compiled bytecode and open BPF file descriptors in RAM.
-   - *Solution*: Always terminate running daemons (`Ctrl+C` or `sudo pkill -9 -f trust_daemon.py`) before re-executing updated scripts.
+3. **BCC Map Key Lookup Type Discrepancy**:
+   - *Problem*: Querying BCC `BPF_HASH` or `BPF_ARRAY` using a standard Python integer key (`0` or `ip_u32`) raised `TypeError: byref() argument must be a ctypes instance, not 'int'`, silently crashing WebSocket handlers.
+   - *Solution*: Always wrap map keys in ctypes objects: `ctypes.c_uint32(ip_to_u32(ip))` for hash maps and `ctypes.c_int(idx)` for arrays.
 
-4. **Stale eBPF Programs Persisting in Kernel Across Process Termination**:
-   - *Problem*: Terminating the Python daemon via `SIGKILL` left XDP attached inside the kernel.
-   - *Solution*: Enhanced `teardown_netns.sh` and `trust_daemon.py` to flush XDP attachments explicitly with `ip link set dev <iface> xdpgeneric off`.
+4. **Browser Compositor & Scroll Lag on Linux Displays**:
+   - *Problem*: UI scrolling was sluggish and dropping frames.
+   - *Root Cause*: CSS `backdrop-filter: blur(16px)` on 15+ panels and HTML5 canvas `shadowBlur` computations forced software Gaussian blur passes on the CPU every scroll frame on hosts without GPU passthrough.
+   - *Solution*: Replaced `backdrop-filter` with solid high-performance obsidian panels (`#0d121f`), eliminated canvas `shadowBlur`, and throttled the animation loop to a smooth 30 FPS.
 
-5. **Ubuntu Package Naming Discrepancy**:
-   - *Problem*: `E: Unable to locate package python3-bcc` on Ubuntu 22.04 LTS.
-   - *Root Cause*: In the official Ubuntu universe repository, the package is named `python3-bpfcc`, while Python import remains `from bcc import BPF`.
-   - *Solution*: Documented and verified: `sudo apt install python3-bpfcc`.
+5. **Attack Process Group Termination under Flood**:
+   - *Problem*: Launching `hping3 --flood` via `shell=True` prevented `SIGTERM` from terminating the flood on Emergency Stop.
+   - *Solution*: Spawn attacks directly with `os.setsid` into a dedicated process group, issue `SIGKILL` (`-9`), and perform a namespace sweep (`ip netns exec ns-attacker killall -9 hping3`).
 
-6. **BCC Python Class Missing Kernel Link Flag Constants**:
-   - *Problem*: `AttributeError: type object 'BPF' has no attribute 'XDP_FLAGS_SKB_MODE'`.
-   - *Root Cause*: BCC ctypes bindings omit `<linux/if_link.h>` constants.
-   - *Solution*: Implemented fallback constant definition: `XDP_FLAGS_SKB_MODE = getattr(BPF, "XDP_FLAGS_SKB_MODE", 1 << 1)`.
+6. **In-Memory Bytecode Retention vs On-Disk Edits**:
+   - *Problem*: Modifying Python scripts on disk did not alter the running behavior of background terminal processes.
+   - *Kernel Cause*: Linux processes hold compiled bytecode and open BPF file descriptors in RAM.
+   - *Solution*: Always terminate running daemons (`Ctrl+C` or `sudo pkill -9 -f ...`) before re-executing updated scripts.
 
 ---
 
@@ -251,7 +259,7 @@ sudo apt install -y build-essential clang llvm libelf-dev \
     iproute2 net-tools hping3 nmap iperf3 python3-pip
 
 # Install FastAPI and WebSockets dependencies for Phase 3
-pip3 install fastapi uvicorn websockets
+sudo pip3 install fastapi uvicorn websockets
 ```
 
 ### 2. Deploy Network Testbed
@@ -265,36 +273,22 @@ sudo ip netns exec ns-attacker ping -c 3 10.10.0.10
 sudo ip netns exec ns-legit ping -c 3 10.10.0.10
 ```
 
-### 3. Launch Dynamic Trust Decay Engine (Phase 2)
-
-Open **Terminal 1** and start the autonomous closed-loop trust daemon:
+### 3. Launch Unified Phase 3 Web Dashboard & Engine
 
 ```bash
-sudo python3 daemon/trust_daemon.py
+# Starts both the live kernel engine and web server on http://localhost:8000
+sudo python3 dashboard/app.py
 ```
 
-### 4. Execute Multi-Terminal Live Attack Simulation
+Open **Firefox** and navigate to:  
+👉 **`http://localhost:8000`**
 
-- **Terminal 2 (Legitimate Workload Baseline)**:
-  ```bash
-  sudo ip netns exec ns-legit ping -i 0.5 10.10.0.10
-  ```
-  *Observed: 100% throughput, 0.0% packet loss throughout attack.*
+### 4. Interactive Testing & Attack Simulations
 
-- **Terminal 3 (Simulate SYN Flood Attack)**:
-  ```bash
-  sudo ip netns exec ns-attacker hping3 --flood -S -p 80 10.10.0.10
-  ```
-  *Observed: Within 1.0s, Terminal 1 logs `🚨 QUARANTINED` in 27–51 µs. Attacker packets dropped at line rate.*
-
-- **Terminal 4 (Simulate Port Reconnaissance / Nmap Scan)**:
-  ```bash
-  sudo ip netns exec ns-attacker nmap -sS -p 1-1000 10.10.0.10
-  ```
-  *Observed: Port entropy penalty triggers immediate transition to `SUSPECT` then `QUARANTINED`.*
-
-- **Test Autonomous Self-Healing**:
-  Stop the attack in Terminal 3 (`Ctrl+C`). Observe Terminal 1: the attacker node recovers trust linearly at $+6.0\,\text{pts/s}$, transitioning through `SUSPECT` and restoring full `TRUSTED` connectivity in ~12 seconds.
+From the Web UI:
+- Click **"LAUNCH SYN FLOOD"** $\rightarrow$ Watch Node C's trust score drain, charts plot the volumetric spike, and red particles shatter against the driver hook barrier.
+- Click **"EMERGENCY STOP ALL ATTACKS"** $\rightarrow$ Observe immediate attack termination and autonomous linear self-healing at $+6.0\,\text{pts/sec}$.
+- Click **"QUARANTINE WORKLOAD"** on Node B $\rightarrow$ Test instantaneous manual micro-segmentation override.
 
 ### 5. Clean Teardown
 
@@ -319,8 +313,12 @@ sudo ./topology/teardown_netns.sh
 ├── daemon/
 │   ├── phase1_loader.py            # Phase 1 interactive BCC loader & CLI controller
 │   └── trust_daemon.py             # Phase 2 autonomous closed-loop trust decay daemon
-├── dashboard/                      # Reserved for Phase 3 FastAPI WebSockets UI
-│   └── .gitkeep
+├── dashboard/                      # Phase 3 Real-Time Observability Presentation Plane
+│   ├── app.py                      # FastAPI server with WebSockets, live kernel bridge & attack API
+│   └── static/
+│       ├── css/style.css           # High-performance obsidian dark mode design system
+│       ├── index.html              # Real-time web dashboard & interactive control deck
+│       └── js/app.js               # WebSocket stream consumer, Chart.js managers & canvas animator
 ├── kernel/
 │   ├── xdp_isolation_p1.c          # Phase 1 static XDP packet filter (L2/L3 parsing)
 │   └── xdp_isolation_p2.c          # Phase 2 dynamic XDP filter (L4 inspection & Ring Buffer)
@@ -336,8 +334,8 @@ sudo ./topology/teardown_netns.sh
 - [x] **Phase 0: Environment Provisioning & Toolchain Validation**
 - [x] **Phase 1: 3-Node Topology & Static XDP Driver Enforcement**
 - [x] **Phase 2: Closed-Loop Dynamic Trust Decay Engine & Ring Buffer Streaming**
-- [ ] **Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets + Chart.js UI)** *(Immediate Next Phase)*
-- [ ] **Phase 4: Comprehensive Benchmarking Suite & Academic Publication Packaging**
+- [x] **Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets + Chart.js UI + Attack Simulator)**
+- [ ] **Phase 4: Comprehensive Benchmarking Suite & Academic Publication Packaging** *(Immediate Next Phase)*
 
 ---
 

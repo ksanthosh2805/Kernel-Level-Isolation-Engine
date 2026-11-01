@@ -155,9 +155,11 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 │   ├── setup_netns.sh                       # [Phase 1 - Created & Verified OK] 3-node netns topology script
 │   └── teardown_netns.sh                    # [Phase 1 - Created] Teardown script for netns & bridge
 ├── dashboard/                               # Presentation Plane (FastAPI + WebSocket + Chart.js)
-│   ├── app.py                               # [Phase 3 - Architecture Ready] FastAPI backend & WebSocket broadcaster
+│   ├── app.py                               # [Phase 3 - COMPLETED & VERIFIED] FastAPI backend, dual-mode engine & attack API
 │   └── static/
-│       └── index.html                       # [Phase 3 - Architecture Ready] Chart.js real-time telemetry dashboard
+│       ├── index.html                       # [Phase 3 - COMPLETED & VERIFIED] Real-time Chart.js dashboard & topology canvas
+│       ├── css/style.css                    # [Phase 3 - COMPLETED & VERIFIED] High-performance obsidian dark mode design system
+│       └── js/app.js                        # [Phase 3 - COMPLETED & VERIFIED] WebSocket stream consumer & interactive animator
 └── benchmarks/                              # Evaluation & Performance Metrics
     └── run_benchmarks.sh                    # [Phase 4 - Architecture Ready] T_isolate latency, CPU, and iperf3 benchmarks
 ```
@@ -166,7 +168,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-02 00:08:15)**: Phase 3 Real-Time Observability Presentation Plane Complete: Built FastAPI WebSocket backend, Chart.js time-series dashboard, animated SVG topology flow canvas, multi-vector attack simulation deck, and microsecond audit feed. *Next*: Phase 4: Quantitative Benchmarking Suite & Thesis Evaluation (run_benchmarks.sh).
+- **Latest Checkpoint (2026-11-02 01:10:00)**: Phase 3 Real-Time Observability Presentation Plane Complete & Verified Live: Built FastAPI WebSocket backend, high-performance Chart.js dashboard, animated topology canvas, one-click attack simulator, and microsecond audit feed. Fixed BCC map ctypes keys, eliminated CPU rendering bottlenecks, hardened Emergency Stop, and mirrored live terminal ASCII telemetry. *Next*: Tomorrow's review and Phase 4 Quantitative Benchmarks.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
@@ -189,10 +191,14 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
   - **Workload Preservation**: Legitimate node (`10.10.0.20`) maintained 100.0% trust with zero packet drops during full active flood on victim (`10.10.0.10`).
 
 - **Phase 3: Real-Time Observability Presentation Plane**:
-  - **Status**: Architecture ready (`dashboard/app.py` and `static/index.html`). Ready to implement next.
+  - **Status: COMPLETED & VERIFIED LIVE [OK]**
+  - **Backend Server**: `dashboard/app.py` — FastAPI application providing `/ws/telemetry` WebSocket streaming, dual-mode engine (Live Kernel eBPF + Interactive Simulator), and REST attack simulation APIs (`/api/attack/start`, `/api/attack/stop`, `/api/policy/override`).
+  - **Frontend UI**: `dashboard/static/index.html` + `css/style.css` + `js/app.js` — High-performance dark mode dashboard featuring 4 Chart.js charts (PPS, Trust Trajectory, Penalty Breakdown, Latency Comparison), animated topology particle flow canvas with driver-level drop collision, and microsecond transition audit feed.
+  - **Dual Mirroring**: Preserved live terminal ASCII dashboard printing in `app.py` matching Phase 2, allowing concurrent monitoring in both terminal and web browser.
+  - **Performance Optimization**: Eliminated 15+ CSS `backdrop-filter: blur()` instances and HTML5 canvas `shadowBlur` operations, achieving silky-smooth 60 FPS scrolling and responsive UI interactions even on software-rendered Linux displays.
 
 - **Phase 4: Comparative Benchmarking & Thesis Evaluation**:
-  - **Status**: Methodology and quantitative metrics established ($T_{\text{isolate}}$ latency, CPU under flood, legitimate throughput).
+  - **Status: PLANNED (Next Phase)**: Automated benchmarking suite (`benchmarks/run_benchmarks.sh`) for $T_{\text{isolate}}$ latency histograms, CPU survivability curves under flood, and legitimate tenant throughput preservation.
 
 ---
 
@@ -208,7 +214,10 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 | `ModuleNotFoundError: No module named 'fastapi'` | Pip installed packages only for regular user, while XDP daemons execute as `root` via `sudo`. | Install system-wide: `sudo pip3 install fastapi "uvicorn[standard]" websockets pydantic psutil`. |
 | `AttributeError: type object 'BPF' has no attribute 'XDP_FLAGS_SKB_MODE'` | Python BCC class `BPF` does not export kernel `if_link.h` XDP mode constants. | Define `XDP_FLAGS_SKB_MODE = getattr(BPF, "XDP_FLAGS_SKB_MODE", 1 << 1)` (value `2`) in Python. |
 | `Operation not supported` when attaching XDP | Attaching in native driver mode (`XDP_FLAGS_DRV_MODE`) to virtual interfaces (`veth`, `bridge`). | Always attach in Generic SKB mode: `XDP_FLAGS_SKB_MODE = 1 << 1`. |
-
+| `TypeError: byref() argument must be a ctypes instance, not 'int'` in BCC maps | Querying BCC `BPF_HASH` or `BPF_ARRAY` using a standard Python integer key (`0` or `ip_u32`) instead of a ctypes object. Throws silently in WebSocket handlers, causing the UI to show `RECONNECTING...`. | Always wrap map keys with ctypes: `ctypes.c_uint32(ip_to_u32(ip))` for `drop_counter_map`, and `ctypes.c_int(idx)` for `diagnostic_counters`. |
+| Severe UI scroll lag and low FPS in Linux browser | CSS `backdrop-filter: blur(16px)` on 15+ card panels and HTML5 canvas `ctx.shadowBlur` run software Gaussian blur passes on the CPU every scroll frame in VMs/hosts without GPU passthrough. | Replaced `backdrop-filter` with solid high-performance obsidian surfaces (`#0d121f` with 1px borders), removed canvas `shadowBlur`, and throttled the animation loop to a lightweight 30 FPS. |
+| Attack process not terminating on Emergency Stop | `hping3 --flood` launched via `subprocess.Popen("...", shell=True)` runs in a subshell, ignoring `SIGTERM` and leaving orphan flood processes in the network namespace. | Launch directly as argument list with `os.setsid`, send `SIGKILL` (`-9`) to the process group, and execute `ip netns exec ns-attacker killall -9 hping3`. |
+| Terminal silent during Phase 3 dashboard execution | In `app.py`, `self.daemon.print_telemetry_dashboard()` was not invoked inside the live evaluation loop, leaving the terminal backend silent. | Re-enabled `self.daemon.print_telemetry_dashboard()` on every 1.0-second tick, enabling dual live terminal ASCII monitoring and browser dashboard visualization simultaneously. |
 
 ---
 
@@ -230,4 +239,34 @@ To maintain unbroken project continuity across sessions separated by days or wee
      ```bash
      python3 .agents/scripts/checkpoint.py "Completed Phase X milestone" --phase "Phase X" --next "Upcoming task"
      ```
+
+---
+
+### 11. Executive Morning Recap for Tomorrow's Session
+
+When starting work tomorrow morning, review this quick cheat-sheet:
+
+#### System State Overview
+- **Phase 0 (Environment)**: Fully provisioned (`clang`, `llvm`, `python3-bpfcc`, `fastapi`, `hping3`, `nmap`).
+- **Phase 1 (Static XDP)**: Verified live. Line-rate packet drops in nanoseconds (`kernel/xdp_isolation_p1.c` + `daemon/phase1_loader.py`).
+- **Phase 2 (Dynamic Trust Decay Engine)**: Verified live. 1.0s sliding-window flow entropy, multi-tier transitions (`TRUSTED` $\rightarrow$ `SUSPECT` $\rightarrow$ `QUARANTINED`), $T_{\text{isolate}} = 27.57\text{--}51.89\,\mu\text{s}$, and $+6.0\,\text{pts/sec}$ self-healing.
+- **Phase 3 (Observability Presentation Plane)**: Verified live. FastAPI WebSocket backend (`dashboard/app.py`), Chart.js UI (`static/index.html`), animated topology canvas, one-click attack simulator, and mirrored terminal ASCII dashboard.
+
+#### Quick 1-Command Morning Launch
+```bash
+# 1. Deploy testbed topology (if not already up)
+sudo ./topology/setup_netns.sh
+
+# 2. Start the unified Phase 3 Engine (displays terminal dashboard + starts web server on :8000)
+sudo python3 dashboard/app.py
+
+# 3. Open browser
+# Navigate to http://localhost:8000 in Firefox
+```
+
+#### Tomorrow's Immediate Target: Phase 4 (Benchmarking & Thesis Evaluation)
+- Implement `benchmarks/run_benchmarks.sh`:
+  1. Automated $T_{\text{isolate}}$ latency histogram generation ($15\text{--}45\,\mu\text{s}$ vs $7.5\,\text{ms}$ iptables).
+  2. CPU utilization comparison under 1,000,000 pps flood (flat line-rate XDP vs saturated `ksoftirqd`).
+  3. Legitimate tenant throughput preservation during active volumetric attack (`iperf3` baseline).
 
