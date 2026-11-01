@@ -1,12 +1,16 @@
 {
   "project_name": "Kernel-Level Zero-Trust Network Traffic Isolation Engine",
   "version": "1.0.0",
-  "last_updated": "2026-11-01T23:34:51.416485",
+  "last_updated": "2026-11-01T23:42:29.864798",
   "active_phase": {
     "id": 2,
     "name": "Phase 2 Complete & GitHub Repository Initialized",
     "wbs_id": "3.2.2 & 3.2.3",
     "status": "COMPLETED_AND_VERIFIED"
+  },
+  "github_push_policy": {
+    "auto_push": false,
+    "rule": "STRICT_USER_TRIGGER_ONLY: Never push to remote GitHub repository automatically on code edits or checkpoints. Only push when explicitly instructed by the user."
   },
   "milestones": {
     "phase_0_environment": {

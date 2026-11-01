@@ -123,4 +123,5 @@ sudo ip netns exec ns-attacker ping -c 2 10.10.0.10
 - **BCC Package**: In Ubuntu APT the package is `python3-bpfcc`, imported as `from bcc import BPF`.
 - **Root Context**: Python packages required by root must be installed system-wide (`sudo pip3 install ...`).
 - **User Executes**: Never execute long-running interactive loaders in background tasks; provide clean commands for the user's terminal.
+- **GitHub Push Policy (Strict User Consent)**: NEVER run `git push` or push updates to the remote GitHub repository automatically or on incremental edits. All commits remain strictly local. Only push to GitHub when the user explicitly gives the command.
 

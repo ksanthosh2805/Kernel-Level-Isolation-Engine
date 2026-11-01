@@ -82,3 +82,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 5. **No Shell History Expansion**: Avoid exclamation marks inside double quotes in bash commands.
 6. **Self-Healing Math**: Follow the exact mathematical formulations ($P_{\text{pps}}$, $P_{\text{syn}}$, $P_{\text{scan}}$, $R_{\text{heal}} = +6.0$) documented in [PROJECT_MASTER_GUIDE.md](file:///home/daemon_targaryen/kernel-isolation-engine/PROJECT_MASTER_GUIDE.md).
 7. **Record State Updates**: When completing milestones or major file modifications, run `checkpoint.py` or update `project_state.json` so future sessions inherit the state.
+8. **Strict GitHub Remote Policy (Explicit User Trigger Only)**:
+   - **NEVER** run `git push` or push updates to the remote GitHub repository automatically, periodically, or on standard code changes/checkpoints.
+   - All Git commits and state-tracking checkpoints remain strictly local on this machine.
+   - Only execute `git push` or update the remote GitHub repository when the user explicitly and directly instructs to update/push to GitHub.

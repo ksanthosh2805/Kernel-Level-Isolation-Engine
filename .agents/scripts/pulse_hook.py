@@ -59,6 +59,7 @@ def build_pulse_message(state):
         f"  - Phase 4 (Benchmarking): {p4_st}",
         "------------------------------------------------------------------",
         f"IMMEDIATE NEXT ACTION: {next_step.get('description', 'N/A')}",
+        "GitHub Policy: STRICT_USER_TRIGGER_ONLY (Push only when user explicitly commands)",
         "Master Docs: PROJECT_MASTER_GUIDE.md | AGENTS.md | PROJECT_KNOWLEDGE_BASE.md",
         "=================================================================="
     ]
