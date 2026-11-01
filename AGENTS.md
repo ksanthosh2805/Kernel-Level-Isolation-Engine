@@ -59,7 +59,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-01 23:03:10)**: Phase 2 Complete & Fully Verified Live: Autonomous Closed-Loop Trust Decay Engine verified under live attack. Measured T_isolate between 27.57 µs and 51.89 µs, verified multi-tier transitions (TRUSTED -> SUSPECT -> QUARANTINED), autonomous +6.0/s self-healing recovery, and zero impact on legitimate container.. *Next*: Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets backend + Chart.js frontend UI dashboard).
+- **Latest Checkpoint (2026-11-01 23:34:51)**: Initialized GitHub repository with comprehensive publication-grade README, .gitignore, full Phase 1 & 2 codebase, academic evaluation report, and benchmarks placeholders. *Next*: Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets backend + Chart.js frontend UI dashboard).
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**

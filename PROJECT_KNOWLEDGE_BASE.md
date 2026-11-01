@@ -166,7 +166,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-01 23:03:10)**: Phase 2 Complete & Fully Verified Live: Autonomous Closed-Loop Trust Decay Engine verified under live attack. Measured T_isolate between 27.57 µs and 51.89 µs, verified multi-tier transitions (TRUSTED -> SUSPECT -> QUARANTINED), autonomous +6.0/s self-healing recovery, and zero impact on legitimate container.. *Next*: Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets backend + Chart.js frontend UI dashboard).
+- **Latest Checkpoint (2026-11-01 23:34:51)**: Initialized GitHub repository with comprehensive publication-grade README, .gitignore, full Phase 1 & 2 codebase, academic evaluation report, and benchmarks placeholders. *Next*: Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets backend + Chart.js frontend UI dashboard).
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
