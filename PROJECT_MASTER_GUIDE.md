@@ -132,16 +132,16 @@ sequenceDiagram
 
 ### 6.2 Mathematical Formulation
 For every sliding window $\Delta t = 1.0\,\text{second}$:
-1. **Volumetric Flood Penalty**:
+1. **Volumetric Flood Penalty ($P_{\text{pps}}$)**:
    $$P_{\text{pps}}(t) = \min\left(45.0,\; \max(0, \text{PPS}(t) - 80) \times 0.15\right)$$
-2. **TCP SYN Flood Penalty**:
-   $$P_{\text{syn}}(t) = \min\left(50.0,\; \max(0, \text{SYN\_Count}(t) - 25) \times 0.45\right)$$
-3. **Port Scan / Reconnaissance Penalty**:
-   $$P_{\text{scan}}(t) = \min\left(60.0,\; \max(0, \text{Unique\_Ports}(t) - 6) \times 4.50\right)$$
-4. **Aggregate Penalty**:
-   $$\text{Total\_Penalty}(t) = P_{\text{pps}}(t) + P_{\text{syn}}(t) + P_{\text{scan}}(t)$$
+2. **TCP SYN Flood Penalty ($P_{\text{syn}}$)**:
+   $$P_{\text{syn}}(t) = \min\left(50.0,\; \max(0, \text{SYN-Count}(t) - 25) \times 0.45\right)$$
+3. **Port Scan / Reconnaissance Penalty ($P_{\text{scan}}$)**:
+   $$P_{\text{scan}}(t) = \min\left(60.0,\; \max(0, \text{Unique-Ports}(t) - 6) \times 4.50\right)$$
+4. **Aggregate Penalty ($P_{\text{total}}$)**:
+   $$P_{\text{total}}(t) = P_{\text{pps}}(t) + P_{\text{syn}}(t) + P_{\text{scan}}(t)$$
 5. **Trust Score Update & Self-Healing**:
-   $$\text{Trust}(t + \Delta t) = \begin{cases} \max\left(0.0,\; \text{Trust}(t) - \text{Total\_Penalty}(t)\right) & \text{if } \text{Total\_Penalty}(t) > 0 \\ \min\left(100.0,\; \text{Trust}(t) + R_{\text{heal}}\right) & \text{if } \text{Total\_Penalty}(t) = 0 \end{cases}$$
+   $$\text{Trust}(t + \Delta t) = \begin{cases} \max\left(0.0,\; \text{Trust}(t) - P_{\text{total}}(t)\right) & \text{if } P_{\text{total}}(t) > 0 \\ \min\left(100.0,\; \text{Trust}(t) + R_{\text{heal}} \times \Delta t\right) & \text{if } P_{\text{total}}(t) = 0 \end{cases}$$
    *(where $R_{\text{heal}} = +6.0\,\text{points/sec}$ auto-recovery constant)*
 
 ---

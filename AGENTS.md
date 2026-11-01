@@ -59,7 +59,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-02 01:10:00)**: Phase 3 Real-Time Observability Presentation Plane Complete & Verified Live: Built FastAPI WebSocket backend, high-performance Chart.js dashboard, animated topology canvas, one-click attack simulator, and microsecond audit feed. Fixed BCC map ctypes keys, eliminated CPU rendering bottlenecks, hardened Emergency Stop, and mirrored live terminal ASCII telemetry. *Next*: Phase 4: Quantitative Benchmarking Suite & Thesis Evaluation (run_benchmarks.sh).
+- **Latest Checkpoint (2026-11-02 01:44:47)**: Fix LaTeX MathJax rendering errors across README and docs. *Next*: Phase 4: Quantitative Benchmarking Suite & Thesis Evaluation (run_benchmarks.sh).
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**

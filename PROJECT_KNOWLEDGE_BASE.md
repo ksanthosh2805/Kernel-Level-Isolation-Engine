@@ -168,7 +168,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-02 01:10:00)**: Phase 3 Real-Time Observability Presentation Plane Complete & Verified Live: Built FastAPI WebSocket backend, high-performance Chart.js dashboard, animated topology canvas, one-click attack simulator, and microsecond audit feed. Fixed BCC map ctypes keys, eliminated CPU rendering bottlenecks, hardened Emergency Stop, and mirrored live terminal ASCII telemetry. *Next*: Tomorrow's review and Phase 4 Quantitative Benchmarks.
+- **Latest Checkpoint (2026-11-02 01:44:47)**: Fix LaTeX MathJax rendering errors across README and docs. *Next*: Phase 4: Quantitative Benchmarking Suite & Thesis Evaluation (run_benchmarks.sh).
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**

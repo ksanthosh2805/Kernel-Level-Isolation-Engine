@@ -103,34 +103,41 @@ An academic capstone and high-performance network security research project impl
 The Control Plane computes workload flow entropy across sliding temporal evaluation windows $\Delta t = 1.0\,\text{second}$.
 
 ### 1. Deterministic Security State Tiers
-$$\text{State}(T) = \begin{cases} 
-\text{STATE\_TRUSTED (0)}, & 70.0 \le T \le 100.0 \implies \text{Verdict: } \texttt{XDP\_PASS} \\
-\text{STATE\_SUSPECT (1)}, & 30.0 \le T < 70.0 \implies \text{Verdict: } \text{Probabilistic Throttle (50\% Drop + SYN Suppress)} \\
-\text{STATE\_QUARANTINED (2)}, & 0.0 \le T < 30.0 \implies \text{Verdict: } \texttt{XDP\_DROP} \text{ (100\% Wire-Speed Isolation)}
-\end{cases}$$
+
+$$
+\text{State}(T) = \begin{cases} 
+\text{STATE-TRUSTED (0)}, & 70.0 \le T \le 100.0 \implies \text{Verdict: XDP-PASS (Line-Rate)} \\
+\text{STATE-SUSPECT (1)}, & 30.0 \le T < 70.0 \implies \text{Verdict: Probabilistic Throttle (50\% Drop)} \\
+\text{STATE-QUARANTINED (2)}, & 0.0 \le T < 30.0 \implies \text{Verdict: XDP-DROP (100\% Wire-Speed Isolation)}
+\end{cases}
+$$
 
 ### 2. Multi-Dimensional Threat Penalty Formulation
+
 Three independent penalty dimensions are computed dynamically for each temporal window:
 
 1. **Volumetric Flood Penalty ($P_{\text{pps}}$)**:
    $$P_{\text{pps}}(t) = \min\left(45.0,\; \max(0, \text{PPS}(t) - 80) \times 0.15\right)$$
 
 2. **TCP SYN Flood Penalty ($P_{\text{syn}}$)**:
-   $$P_{\text{syn}}(t) = \min\left(50.0,\; \max(0, \text{SYN\_Rate}(t) - 25) \times 0.45\right)$$
+   $$P_{\text{syn}}(t) = \min\left(50.0,\; \max(0, \text{SYN-Rate}(t) - 25) \times 0.45\right)$$
 
 3. **Port Reconnaissance / Entropy Penalty ($P_{\text{scan}}$)**:
-   $$P_{\text{scan}}(t) = \min\left(60.0,\; \max(0, \text{Unique\_Ports}(t) - 6) \times 4.50\right)$$
+   $$P_{\text{scan}}(t) = \min\left(60.0,\; \max(0, \text{Unique-Ports}(t) - 6) \times 4.50\right)$$
 
-4. **Aggregate Threat Penalty**:
-   $$\text{Total\_Penalty}(t) = P_{\text{pps}}(t) + P_{\text{syn}}(t) + P_{\text{scan}}(t)$$
+4. **Aggregate Threat Penalty ($P_{\text{total}}$)**:
+   $$P_{\text{total}}(t) = P_{\text{pps}}(t) + P_{\text{syn}}(t) + P_{\text{scan}}(t)$$
 
 ### 3. Autonomous Self-Healing Formulation
+
 When hostile activity ceases, workloads recover trust linearly at guaranteed recovery rate $R_{\text{heal}} = +6.0\,\text{points/sec}$:
 
-$$\text{Trust}(t + \Delta t) = \begin{cases} 
-\max\left(0.0,\; \text{Trust}(t) - \text{Total\_Penalty}(t)\right), & \text{if } \text{Total\_Penalty}(t) > 0 \\
-\min\left(100.0,\; \text{Trust}(t) + R_{\text{heal}} \times \Delta t\right), & \text{if } \text{Total\_Penalty}(t) == 0
-\end{cases}$$
+$$
+\text{Trust}(t + \Delta t) = \begin{cases} 
+\max\left(0.0,\; \text{Trust}(t) - P_{\text{total}}(t)\right), & \text{if } P_{\text{total}}(t) > 0 \\
+\min\left(100.0,\; \text{Trust}(t) + R_{\text{heal}} \times \Delta t\right), & \text{if } P_{\text{total}}(t) = 0
+\end{cases}
+$$
 
 ---
 
