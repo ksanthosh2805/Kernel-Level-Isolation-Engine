@@ -168,7 +168,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-02 01:51:25)**: Phase 3 Complete: Real-Time Observability Presentation Plane fully verified and pushed to remote. *Next*: Implement benchmarks/run_benchmarks.sh, collect quantitative pps/latency metrics, and generate academic thesis charts.
+- **Latest Checkpoint (2026-11-02 11:48:43)**: Phase 3 Presentation Plane live execution verified by user; fixed ctypes import for live BPF map queries in dashboard/app.py and updated bug registry. *Next*: Implement benchmarks/run_benchmarks.sh for Phase 4 quantitative evaluation.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**

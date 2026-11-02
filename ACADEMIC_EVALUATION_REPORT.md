@@ -166,7 +166,7 @@ $$\text{Speedup Factor} = \frac{T_{\text{iptables}}}{T_{\text{XDP}}} = \frac{7,5
 
 ## 6. Exhaustive Engineering Post-Mortem & Bug Registry
 
-During Phase 1 and Phase 2 development, six non-trivial system-level challenges were encountered, debugged, and permanently resolved:
+During Phase 1, Phase 2, and Phase 3 development, seven non-trivial system-level challenges were encountered, debugged, and permanently resolved:
 
 ### Bug 1: The Linux Bridge Forwarding Bypass
 - **Symptom**: XDP was attached to `br-xdp`. Running `ping 10.10.0.10` from `ns-attacker` showed `Ingress Frames Intercepted: 0` in the telemetry dashboard.
@@ -206,6 +206,11 @@ During Phase 1 and Phase 2 development, six non-trivial system-level challenges 
   ```python
   XDP_FLAGS_SKB_MODE = getattr(BPF, "XDP_FLAGS_SKB_MODE", 1 << 1) # value 2
   ```
+
+### Bug 7: User-Space Map Access Missing C-Type Casts / Ctypes Import
+- **Symptom**: `NameError: name 'ctypes' is not defined` when querying eBPF `drop_map` or `diag_map` from the FastAPI presentation server in live mode.
+- **Root Cause**: BPF maps in Python BCC require wrapping integer keys and indices with ctypes primitive types (`ctypes.c_int`, `ctypes.c_uint32`). The FastAPI server omitted the top-level `import ctypes`.
+- **Verified Fix**: Added `import ctypes` at top level of [dashboard/app.py](file:///home/daemon_targaryen/kernel-isolation-engine/dashboard/app.py#L11).
 
 ---
 

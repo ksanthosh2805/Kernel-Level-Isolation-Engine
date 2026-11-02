@@ -59,7 +59,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-02 01:51:25)**: Phase 3 Complete: Real-Time Observability Presentation Plane fully verified and pushed to remote. *Next*: Implement benchmarks/run_benchmarks.sh, collect quantitative pps/latency metrics, and generate academic thesis charts.
+- **Latest Checkpoint (2026-11-02 11:48:43)**: Phase 3 Presentation Plane live execution verified by user; fixed ctypes import for live BPF map queries in dashboard/app.py and updated bug registry. *Next*: Implement benchmarks/run_benchmarks.sh for Phase 4 quantitative evaluation.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
