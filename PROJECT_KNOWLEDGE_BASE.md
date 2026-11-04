@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-05 00:48:58)**: Version 2.0 Step 1 Complete: Created 16-node multi-tier cluster topology scripts (setup_netns_cluster.sh & teardown_netns_cluster.sh) and updated all conscience stores with East-West lateral isolation & 2^(k-1) penalty models. *Next*: Deploy topology via sudo bash topology/setup_netns_cluster.sh and test cluster reachability.
+- **Latest Checkpoint (2026-11-05 01:03:12)**: Ingested complete conversational history, faculty feedback, architectural rationales (Ideas A, B, C unified), and persistent conscience directive into knowledge base and agent rules. *Next*: Step 2: Author 16-port eBPF kernel datapath (kernel/xdp_isolation_v2.c) with LRU policy map and East-West matrix.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
@@ -349,4 +349,53 @@ In Step 2, author the high-density eBPF filter engineered for 16 concurrent cont
   - Animate lateral reconnaissance sweeps getting deflected at driver barriers.
 - **Step 5 (High-Density Benchmarking: `benchmarks/benchmark_cluster.py`)**:
   - Measure blast-radius confinement ratio ($\mathcal{B}_{\text{confine}}$) and generate IEEE publication LaTeX tables for the 16-node cluster under multi-attacker floods.
+
+---
+
+### 14. Conversational History, Faculty Feedback & Architectural Decision Registry
+
+This section preserves the complete conversational intelligence, faculty feedback, trade-off analyses, and user directives from project inception to Version 2.0:
+
+#### 14.1 Faculty Demo Review & Scaling Recommendation (2026-11-05 00:34)
+* **User Input**: *"I showed the demo to my faculty she was okay with project scope and working and all, but she recommended me to add more virtual devices. For our Project we set one victim, one legit and one attacker - she telling us to go with multi device setup like 10 or 20 virtual device each could interact in a network setup that prove our setup more deliberately and our focus and setup can be viable for IEEE or sort of publication we can go with."*
+* **Faculty Verdict**: The 3-node POC is technically sound, but scaling to 10–20 nodes is the required differentiator to prove multi-tenant isolation, enterprise realism, and achieve acceptance in IEEE/ACM conferences.
+
+#### 14.2 Repository Branching Strategy
+* **User Directive**: Create three distinct branches from the fully verified `main` repository:
+  1. **`v1`**: Version 1.0 — Permanent immutable snapshot of the completed Phase 0–4 capstone (3-node testbed, empirical $4.04\,\mu\text{s}$ latency, $18.2\%$ CPU savings).
+  2. **`v2`**: Version 2.0 — Active enhancement branch for the 16-node enterprise cluster, East-West lateral movement isolation, and $2^{k-1}$ hysteresis.
+  3. **`academic-presentation`**: Dedicated repository workspace for capstone viva presentation slides (PPT/PDF), formal reports (DOCX/LaTeX), and faculty review documents.
+* **Status**: Branches created and pushed to GitHub (`origin/v1`, `origin/v2`, `origin/academic-presentation`).
+
+#### 14.3 VirtualBox Hardware Constraints & Technical Rationale
+* **Environment Audit**: Ubuntu 22.04 LTS on VirtualBox, 4 vCPUs, 5.8 GiB RAM (2.8 GiB free), software CPU rendering (no GPU passthrough).
+* **Technical Decision**:
+  * **REJECTED**: Heavy container orchestrators (Docker Swarm, Minikube, Kubernetes). 16 full containers would consume 3–4 GiB RAM, triggering swap thrashing and CPU starvation.
+  * **ADOPTED**: Pure Linux Network Namespaces (`ip netns`). Namespaces are in-kernel pointer structs (`struct net *`). 16 namespaces consume **$<11\,\text{MB}$ of RAM total** and 0% CPU at idle, providing identical networking fidelity with zero virtualization penalty.
+
+#### 14.4 Strategic Node Count & Architectural Tiering (Why 16 Nodes?)
+* **Decision**: 16 Nodes arranged as a 4×4 symmetric multi-tier grid on subnet `10.20.0.0/24`:
+  * *Academic Value*: $N = 16 = 2^4$ is the canonical benchmark scale in distributed systems literature.
+  * *UI Compositing*: Formats symmetrically into a 4-column card grid fitting a single 1080p screen without scrolling.
+  * *Tier Distribution*:
+    - Tier 1: 4 Web Pods (`ns-web-01` to `04`, `10.20.0.11–14`)
+    - Tier 2: 4 API Pods (`ns-api-auth`, `order`, `pay`, `user`, `10.20.0.21–24`)
+    - Tier 3: 4 Data Pods (`ns-db-primary`, `replica`, `redis`, `elastic`, `10.20.0.31–34`)
+    - Tier 4: 2 Clients (`ns-client-alpha`, `beta`) + 2 Attackers (`ns-attk-lateral`, `ddos`)
+  * *Kernel Limit Compliance*: All host interface names (`veth-w01-br` to `veth-x02-br`) are $\leq 15$ characters to strictly obey Linux `IFNAMSIZ` (16 bytes).
+
+#### 14.5 Unifying Ideas A, B, and C into a Single Academic Stack
+* **Question**: Should we choose Idea A, B, or C?
+* **Verdict**: All three must be combined. They are not competing options—they represent the Infrastructure, Mechanism, and Mathematical proof of a single system:
+  1. **Idea A (Infrastructure)**: The 16-node microservice mesh provides the high-density multi-tenant playground.
+  2. **Idea B (Security Mechanism)**: East-West lateral movement micro-isolation proves *why* 16 nodes are needed (a compromised web container cannot pivot to internal DBs; adjacent 15 nodes suffer 0% blast radius).
+  3. **Idea C (Algorithmic Proof)**: The $2^{k-1}$ Repeat-Offender Hysteresis Formula ($P_{\text{decay}} = P \times 2^{k-1}$, $R_{\text{heal}} = R_{\text{base}} / 2^{k-1}$) provides the published mathematical innovation.
+
+#### 14.6 Verified Empirical Baseline Data (Phase 4 Results)
+* **$T_{\text{isolate}}$ Latency**: Mean **$4.04\,\mu\text{s}$** ($2.09\,\mu\text{s}$ median, $P_{95} = 3.18\,\mu\text{s}$) vs Linux `iptables` **$7,000.16\,\mu\text{s}$** (**$1,732.6\times$ faster**).
+* **Volumetric DDoS CPU**: Peak CPU bounded at **$67.70\%$** (vs $77.50\%$), peak softirq bounded at **$65.84\%$** (vs $95.71\%$), kernel load reduced by **$18.19\%$** ($63.93\%$ vs $82.12\%$).
+* **Legitimate Retention**: TCP retransmissions reduced by **$6.18\times$** (**$232$** vs $1,434$), average ping RTT **$0.04\,\text{ms}$** (vs $0.06\,\text{ms}$), with **$0.0\%$ packet loss**.
+
+#### 14.7 Master Directive on Conscience Tracking
+* **User Directive (2026-11-05 01:01)**: All modifications, conversation decisions, strategic outputs, and chat replies must be preserved simultaneously in project documentation and conscience files so future agents retain complete operational context and make informed decisions without memory loss.
 

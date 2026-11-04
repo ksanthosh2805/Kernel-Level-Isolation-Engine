@@ -64,7 +64,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-05 00:48:58)**: Version 2.0 Step 1 Complete: Created 16-node multi-tier cluster topology scripts (setup_netns_cluster.sh & teardown_netns_cluster.sh) and updated all conscience stores with East-West lateral isolation & 2^(k-1) penalty models. *Next*: Deploy topology via sudo bash topology/setup_netns_cluster.sh and test cluster reachability.
+- **Latest Checkpoint (2026-11-05 01:03:12)**: Ingested complete conversational history, faculty feedback, architectural rationales (Ideas A, B, C unified), and persistent conscience directive into knowledge base and agent rules. *Next*: Step 2: Author 16-port eBPF kernel datapath (kernel/xdp_isolation_v2.c) with LRU policy map and East-West matrix.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
@@ -106,3 +106,6 @@ To ensure that knowledge, state, and audit history persist even when the workspa
    - **NEVER** run `git push` or push updates to the remote GitHub repository automatically, periodically, or on standard code changes/checkpoints.
    - All Git commits and state-tracking checkpoints remain strictly local on this machine.
    - Only execute `git push` or update the remote GitHub repository when the user explicitly and directly instructs to update/push to GitHub.
+9. **Continuous Conversational Intelligence & Decision Rationale Logging**:
+   - Every strategic discussion, user instruction, faculty recommendation, architectural trade-off, and conversational output must be recorded simultaneously in `PROJECT_KNOWLEDGE_BASE.md` (Section 14), `PROJECT_CHANGELOG.md`, and `.agents/state/project_state.json`.
+   - Never lose the operational *context* and *reasoning* behind decisions (e.g. why 16 nodes, why pure Linux `ip netns` over Docker in VirtualBox, why Ideas A, B, and C are unified into a 3-layer stack, and why branches `v1`, `v2`, `academic-presentation` were structured). Future agents must inherit complete conversational intelligence without amnesia.
