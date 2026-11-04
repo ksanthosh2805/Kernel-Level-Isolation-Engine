@@ -68,7 +68,7 @@ def update_kb_md(summary, now_str, next_step):
     except Exception as e:
         print(f"[!] Warning: Could not update PROJECT_KNOWLEDGE_BASE.md: {e}")
 
-def update_state(summary, phase=None, files=None, next_step=None):
+def update_state(summary, phase=None, files=None, next_step=None, dialogue=None):
     if not os.path.exists(STATE_FILE):
         print(f"[-] State file not found at {STATE_FILE}")
         return False
@@ -91,6 +91,8 @@ def update_state(summary, phase=None, files=None, next_step=None):
         "summary": summary,
         "files_touched": file_list
     }
+    if dialogue:
+        activity_entry["dialogue_context"] = dialogue
 
     # Prepend to recent activities, keeping last 15
     recent = state.get("recent_activity", [])
@@ -112,8 +114,11 @@ def update_state(summary, phase=None, files=None, next_step=None):
             f"\n## {now_str} — {summary}",
             f"- **Phase**: {phase or state.get('active_phase', {}).get('name', 'Active')}",
             f"- **Files**: {', '.join([f'`{fl}`' for fl in file_list]) if file_list else 'None specified'}",
-            f"- **Next Step**: {effective_next}\n"
+            f"- **Next Step**: {effective_next}"
         ]
+        if dialogue:
+            entry_md.append(f"- **Conversational & Decision Context**:\n  > {dialogue.replace(chr(10), chr(10) + '  > ')}")
+        entry_md.append("\n")
         with open(CHANGELOG_FILE, "a") as f:
             f.write("\n".join(entry_md))
 
@@ -129,6 +134,8 @@ def update_state(summary, phase=None, files=None, next_step=None):
     print(f"    ├─ Root Conscience:    AGENTS.md (Synchronized)")
     print(f"    └─ Knowledge Base:     PROJECT_KNOWLEDGE_BASE.md (Synchronized)")
     print(f"\n    Summary:   {summary}")
+    if dialogue:
+        print(f"    Dialogue:  {dialogue[:120]}...")
     print(f"    Next Step: {effective_next}\n")
     return True
 
@@ -138,9 +145,10 @@ def main():
     parser.add_argument("--phase", help="Current active phase name")
     parser.add_argument("--files", help="Comma-separated list of files modified")
     parser.add_argument("--next", help="Immediate next action description")
+    parser.add_argument("--dialogue", help="Full conversational context, chat inputs, reasoning, and outputs")
 
     args = parser.parse_args()
-    update_state(args.summary, args.phase, args.files, args.next)
+    update_state(args.summary, args.phase, args.files, args.next, args.dialogue)
 
 if __name__ == "__main__":
     main()
