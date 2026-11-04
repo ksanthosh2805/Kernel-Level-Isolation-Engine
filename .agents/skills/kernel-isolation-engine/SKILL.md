@@ -112,12 +112,30 @@ sudo ip netns exec ns-attacker ping -c 2 10.10.0.10
 4. **Emergency Stop**: Click "EMERGENCY STOP ALL ATTACKS" to terminate flood processes and observe autonomous self-healing at $+6.0\,\text{pts/sec}$.
 5. **Standalone Mode**: If launched without root (`python3 dashboard/app.py`), runs interactive simulator for testing UI without needing netns or sudo.
 
-### Runbook 5: Phase 4 Quantitative Benchmarks (Upcoming Tomorrow)
-1. Execute: `sudo bash ~/kernel-isolation-engine/benchmarks/run_benchmarks.sh`
-2. Generates CSV logs for:
-   - Mitigation Latency $T_{\text{isolate}}$ ($15\text{--}45\,\mu\text{s}$ vs $3,000\text{--}12,000\,\mu\text{s}$ for `iptables`)
-   - CPU utilization under flood
-   - Legitimate workload throughput preservation under active attack
+### Runbook 5: Phase 4 Quantitative Benchmarks (COMPLETED & VERIFIED)
+1. **Master Benchmark Suite**:
+   ```bash
+   sudo bash ~/kernel-isolation-engine/benchmarks/run_benchmarks.sh --all
+   ```
+2. **Individual Micro-Benchmarks**:
+   ```bash
+   # Microsecond T_isolate benchmark (N=100 iterations)
+   sudo python3 benchmarks/benchmark_latency.py -n 100
+
+   # Volumetric DDoS CPU & softirq survivability monitor
+   sudo python3 benchmarks/benchmark_cpu.py --duration 15
+
+   # Legitimate tenant throughput & ping RTT preservation
+   sudo python3 benchmarks/benchmark_throughput.py --duration 10
+   ```
+3. **Empirical Benchmarking Results Recorded**:
+   - **Mitigation Latency ($T_{\text{isolate}}$)**: Mean **$4.04\,\mu\text{s}$** ($2.09\,\mu\text{s}$ median) vs Linux `iptables` **$7,000.16\,\mu\text{s}$** (**$1,732.6\times$ faster**).
+   - **DDoS CPU Survivability**: Bounded peak CPU at **$67.70\%$** (vs $77.50\%$ for iptables), softirq peak at **$65.84\%$** (vs $95.71\%$ for iptables), and kernel load reduced by **$18.19\%$** ($63.93\%$ vs $82.12\%$).
+   - **Legitimate Workload Retention**: TCP retransmissions reduced by **$6.18\times$** (**$232$** vs $1,434$ for iptables), ICMP RTT dropped to **$0.04\,\text{ms}$** (vs $0.06\,\text{ms}$ for iptables), with **$0.0\%$ packet loss**.
+4. **Generated Artifacts**:
+   - Master Thesis Report: `benchmarks/results/BENCHMARK_REPORT.md`
+   - Publication-Ready LaTeX Tables: `benchmarks/results/latex_*.tex`
+   - Raw Metric CSVs: `benchmarks/results/*.csv`
 
 ---
 

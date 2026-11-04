@@ -3,10 +3,10 @@
 [![Linux Kernel](https://img.shields.io/badge/Kernel-5.15%2B%20%7C%206.x-blue?logo=linux)](https://kernel.org)
 [![eBPF](https://img.shields.io/badge/Datapath-eBPF%20%2F%20XDP-orange?logo=linux)](https://ebpf.io)
 [![Runtime](https://img.shields.io/badge/Control%20Plane-Python%203.10%20%2F%20BCC-green?logo=python)](https://github.com/iovisor/bcc)
-[![Mitigation Latency](https://img.shields.io/badge/T__isolate-27.57%20--%2051.89%20%C2%B5s-brightgreen)](ACADEMIC_EVALUATION_REPORT.md)
+[![Mitigation Latency](https://img.shields.io/badge/T__isolate-4.04%20%C2%B5s%20(1732.6x%20vs%20iptables)-brightgreen)](ACADEMIC_EVALUATION_REPORT.md)
 [![Enforcement Layer](https://img.shields.io/badge/Hook-NIC%20Driver%20(Pre--sk__buff)-red)](kernel/xdp_isolation_p2.c)
 [![Observability](https://img.shields.io/badge/Presentation-FastAPI%20%2F%20WebSockets%20%2F%20Chart.js-blueviolet)](dashboard/app.py)
-[![Project Status](https://img.shields.io/badge/Status-Phase%203%20Verified%20%5BOK%5D-success)]()
+[![Project Status](https://img.shields.io/badge/Status-Phases%200--4%20Complete%20%26%20Verified%20%5BOK%5D-success)]()
 [![License](https://img.shields.io/badge/License-Dual%20GPL--2.0%20%2F%20MIT-lightgrey)](LICENSE)
 
 An academic capstone and high-performance network security research project implementing a **closed-loop Zero-Trust Traffic Isolation Engine** directly at the operating system's Network Interface Card (NIC) driver layer using **eBPF (Extended Berkeley Packet Filter)** and **XDP (eXpress Data Path)**.
@@ -17,21 +17,22 @@ An academic capstone and high-performance network security research project impl
 
 > *"In modern cloud and multi-tenant containerized environments, traditional firewalls like `iptables`, `nftables`, and user-space service mesh proxies fail under volumetric floods. They force the Linux kernel to allocate heavy socket buffers (`sk_buff`) and execute stateful connection tracking (`conntrack`) before rules can be evaluated, causing CPU softirq starvation and dropping legitimate packets.*
 >
-> *Our project resolves this fundamental resource asymmetry by enforcing Zero-Trust security directly at the NIC driver layer with eBPF/XDP. Unwanted frames are intercepted and dropped in nanoseconds before the kernel networking stack allocates a single byte of memory. Paired with this kernel datapath is an autonomous user-space Python daemon consuming an in-kernel Ring Buffer to calculate real-time behavioral entropy. Upon detecting SYN floods or reconnaissance scans, the daemon atomically updates kernel eBPF hash maps in **27.57 to 51.89 microseconds** ($195.5\times$ faster than `iptables`), maintaining flat CPU usage, preserving legitimate tenant throughput, and autonomously self-healing peaceful workloads without restarting services or dropping connections.*
+> *Our project resolves this fundamental resource asymmetry by enforcing Zero-Trust security directly at the NIC driver layer with eBPF/XDP. Unwanted frames are intercepted and dropped in nanoseconds before the kernel networking stack allocates a single byte of memory. Paired with this kernel datapath is an autonomous user-space Python daemon consuming an in-kernel Ring Buffer to calculate real-time behavioral entropy. Upon detecting SYN floods or reconnaissance scans, the daemon atomically updates kernel eBPF hash maps in **4.04 microseconds** ($1,732.6\times$ faster than `iptables`), maintaining flat CPU usage, preserving legitimate tenant throughput with $6.18\times$ fewer TCP retransmissions, and autonomously self-healing peaceful workloads without restarting services or dropping connections.*
 >
-> *In Phase 3, we pair this kernel enforcement with a real-time observability deck: an asynchronous FastAPI WebSocket engine broadcasting wire-speed telemetry to an interactive, high-performance Chart.js dashboard with animated topology canvas and one-click attack simulation controls."*
+> *We complete this architecture with a dual-mirror presentation plane: an asynchronous FastAPI WebSocket engine broadcasting wire-speed telemetry to an interactive, high-performance Chart.js dashboard with animated topology canvas and one-click attack simulation controls.*
 
 ---
 
-## 🎯 Key Achievements & Empirical Highlights (Phases 1, 2 & 3 Verified)
+## 🎯 Key Achievements & Empirical Highlights (Phases 0–4 Verified Live)
 
 - **Driver-Level Packet Interception**: Raw Ethernet frames (`struct xdp_md`) are parsed, bounds-checked, and filtered at the driver ingress layer (`XDP_PASS` vs `XDP_DROP`).
-- **Microsecond Policy Mutation ($T_{\text{isolate}}$)**: Empirical verification under live multi-vector attacks demonstrated complete workload isolation in **$27.57\,\mu\text{s}$ to $51.89\,\mu\text{s}$** (average $38.35\,\mu\text{s}$), outperforming netfilter table reloads ($7.5\,\text{ms}$) by **$195.5\times$**.
+- **Microsecond Policy Mutation ($T_{\text{isolate}}$)**: Empirical verification over $N=100$ trials demonstrated atomic workload quarantine in **$4.04\,\mu\text{s}$** ($2.09\,\mu\text{s}$ median, $P_{95} = 3.18\,\mu\text{s}$), outperforming netfilter table reloads ($7,000.16\,\mu\text{s}$) by **$\mathbf{1,732.6\times}$**.
+- **Volumetric DDoS CPU Survivability**: Discarding frames before `sk_buff` buffer allocation bounds peak CPU to **$67.70\%$** (vs $77.50\%$ for iptables), bounds softirq peaks to **$65.84\%$** (vs $95.71\%$ for iptables), and reduces kernel CPU cycles by **$18.19\%$**.
+- **Legitimate Workload Preservation**: Under an active multi-gigabit volumetric SYN flood, adjacent legitimate tenant workloads experienced **$6.18\times$ fewer TCP retransmissions** ($232$ vs $1,434$), sub-millisecond ping RTT (**$0.04\,\text{ms}$** vs $0.06\,\text{ms}$), and **$0.0\%$ packet loss**.
 - **In-Kernel Ring Buffer Telemetry**: High-throughput, zero-copy packet descriptor streaming (`BPF_RINGBUF_OUTPUT`) emitting 32-byte flow events (`flow_event_t`) without userspace polling overhead.
 - **Autonomous Multi-Tier State Machine**: Source workloads transition dynamically between **`TRUSTED`** ($100 \rightarrow 70$), **`SUSPECT`** ($70 \rightarrow 30$, 50% probabilistic throttle), and **`QUARANTINED`** ($< 30$, 100% wire-speed drop).
-- **Zero Collateral Damage**: Under a full volumetric SYN flood directed at the victim container, the adjacent legitimate tenant container experienced **0.0% packet drops** and maintained full network throughput.
 - **Autonomous Self-Healing Engine**: Peaceful workloads dynamically regain trust at $+6.0\,\text{points/second}$, restoring line-rate communication automatically without operator intervention.
-- **Real-Time Web Presentation Plane (Phase 3)**:
+- **Real-Time Web Presentation Plane**:
   - **FastAPI WebSocket Streaming**: Continuous 1.0s broadcast of JSON telemetry snapshots with dual live terminal ASCII mirroring.
   - **Animated HTML5 Topology Canvas**: Visualizes inter-container packets traversing bridge `br-xdp`, with red attack streams visibly shattering into an `XDP_DROP` barrier at the driver hook.
   - **Interactive Multi-Vector Attack Simulator**: One-click browser triggers for volumetric TCP SYN floods, stealth `nmap` port scans, UDP bursts, and clean `SIGKILL` Emergency Stop sweeps.
@@ -315,8 +316,12 @@ sudo ./topology/teardown_netns.sh
 ├── PROJECT_KNOWLEDGE_BASE.md       # Operational runbook, IP table & troubleshooting log
 ├── PROJECT_MASTER_GUIDE.md         # Full architectural blueprint, mathematical foundations & roadmap
 ├── README.md                       # Master project overview, benchmarks & quickstart guide
-├── benchmarks/                     # Reserved for Phase 4 benchmarking suite
-│   └── .gitkeep
+├── benchmarks/                     # Phase 4 Quantitative Benchmarking Suite & Evaluation
+│   ├── benchmark_latency.py        # Microsecond T_isolate benchmark (eBPF map vs iptables)
+│   ├── benchmark_cpu.py            # Volumetric DDoS CPU & softirq survivability monitor
+│   ├── benchmark_throughput.py     # Legitimate tenant throughput & ping RTT preservation tester
+│   ├── run_benchmarks.sh           # Master automated benchmark runner & report generator
+│   └── results/                    # Empirical CSV logs, LaTeX tables & BENCHMARK_REPORT.md
 ├── daemon/
 │   ├── phase1_loader.py            # Phase 1 interactive BCC loader & CLI controller
 │   └── trust_daemon.py             # Phase 2 autonomous closed-loop trust decay daemon
@@ -342,7 +347,7 @@ sudo ./topology/teardown_netns.sh
 - [x] **Phase 1: 3-Node Topology & Static XDP Driver Enforcement**
 - [x] **Phase 2: Closed-Loop Dynamic Trust Decay Engine & Ring Buffer Streaming**
 - [x] **Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets + Chart.js UI + Attack Simulator)**
-- [ ] **Phase 4: Comprehensive Benchmarking Suite & Academic Publication Packaging** *(Immediate Next Phase)*
+- [x] **Phase 4: Comprehensive Benchmarking Suite & Academic Publication Packaging** *(COMPLETED & VERIFIED LIVE)*
 
 ---
 

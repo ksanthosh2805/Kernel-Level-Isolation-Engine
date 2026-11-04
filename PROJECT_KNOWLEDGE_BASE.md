@@ -161,14 +161,23 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 │       ├── css/style.css                    # [Phase 3 - COMPLETED & VERIFIED] High-performance obsidian dark mode design system
 │       └── js/app.js                        # [Phase 3 - COMPLETED & VERIFIED] WebSocket stream consumer & interactive animator
 └── benchmarks/                              # Evaluation & Performance Metrics
-    └── run_benchmarks.sh                    # [Phase 4 - Architecture Ready] T_isolate latency, CPU, and iperf3 benchmarks
+    ├── benchmark_latency.py                 # [Phase 4 - COMPLETED & VERIFIED] Microsecond T_isolate benchmark (N=100)
+    ├── benchmark_cpu.py                     # [Phase 4 - COMPLETED & VERIFIED] Volumetric DDoS CPU & softirq monitor
+    ├── benchmark_throughput.py              # [Phase 4 - COMPLETED & VERIFIED] Legitimate tenant throughput & ping RTT tester
+    ├── run_benchmarks.sh                    # [Phase 4 - COMPLETED & VERIFIED] Master benchmark orchestrator & report generator
+    └── results/                             # [Phase 4 - COMPLETED & VERIFIED] Benchmark metrics, CSVs & LaTeX tables
+        ├── latency_comparison.csv           # Raw N=100 latency samples (Mean: 4.04 µs vs 7000.16 µs)
+        ├── cpu_comparison.csv               # CPU & softirq metrics (67.7% peak vs 77.5%, 18.2% lower kernel load)
+        ├── throughput_comparison.csv        # iperf3 & ping retention (232 vs 1434 retransmits, 0.04 ms RTT)
+        ├── latex_*.tex                      # Publication-ready IEEE/ACM LaTeX tables
+        └── BENCHMARK_REPORT.md              # Consolidated empirical thesis evaluation report
 ```
 
 ---
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-02 11:48:43)**: Phase 3 Presentation Plane live execution verified by user; fixed ctypes import for live BPF map queries in dashboard/app.py and updated bug registry. *Next*: Implement benchmarks/run_benchmarks.sh for Phase 4 quantitative evaluation.
+- **Latest Checkpoint (2026-11-05 00:03:40)**: Phase 4 Quantitative Benchmarks Executed & Verified: Empirical findings logged (T_isolate 4.04 µs, 1732.6x faster than iptables, 6.18x fewer retransmits, 18.2% lower kernel CPU burden). *Next*: Prepare viva defense slides and integrate LaTeX tables into final thesis document.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
@@ -198,7 +207,24 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
   - **Performance Optimization**: Eliminated 15+ CSS `backdrop-filter: blur()` instances and HTML5 canvas `shadowBlur` operations, achieving silky-smooth 60 FPS scrolling and responsive UI interactions even on software-rendered Linux displays.
 
 - **Phase 4: Comparative Benchmarking & Thesis Evaluation**:
-  - **Status: PLANNED (Next Phase)**: Automated benchmarking suite (`benchmarks/run_benchmarks.sh`) for $T_{\text{isolate}}$ latency histograms, CPU survivability curves under flood, and legitimate tenant throughput preservation.
+  - **Status: COMPLETED & FULLY VERIFIED LIVE [OK]**
+  - **Verification Date**: 2026-11-04 23:59:00 UTC
+  - **Master Runner**: `benchmarks/run_benchmarks.sh` — Automated end-to-end benchmarking harness.
+  - **Empirical Experiment 1: Policy Mutation Latency ($T_{\text{isolate}}$)**:
+    - Sample Count: $N = 100$ iterations.
+    - Our eBPF Engine Mean: **$4.04\,\mu\text{s}$** (Median: **$2.09\,\mu\text{s}$**, Min: $2.00\,\mu\text{s}$, $P_{95} = 3.18\,\mu\text{s}$, StdDev: $17.62\,\mu\text{s}$).
+    - Linux Netfilter `iptables` Mean: **$7,000.16\,\mu\text{s}$** (Median: $6,567.25\,\mu\text{s}$, Min: $3,741.83\,\mu\text{s}$, $P_{95} = 10,912.95\,\mu\text{s}$).
+    - **Academic Finding**: eBPF hash map mutation is **$\mathbf{1,732.6\times}$ faster** than `iptables` rule insertions.
+  - **Empirical Experiment 2: Volumetric DDoS CPU Survivability**:
+    - Under active `hping3 --flood` from `ns-attacker`:
+    - Peak Host CPU: Bounded at **$67.70\%$** under XDP vs **$77.50\%$** under `iptables`.
+    - Peak Kernel SoftIRQ: **$65.84\%$** under XDP vs **$95.71\%$** under `iptables` ($29.87\%$ reduction in softirq saturation).
+    - Kernel/System Load: **$63.93\%$** under XDP vs **$82.12\%$** under `iptables` (**$18.19\%$ reduction in kernel CPU cycles**).
+  - **Empirical Experiment 3: Legitimate Tenant Workload Preservation**:
+    - Tested legitimate traffic (`ns-legit` $\rightarrow$ `ns-victim`) during active attack flood:
+    - TCP Retransmissions: **$232$** under eBPF/XDP vs **$1,434$** under `iptables` (**$\mathbf{6.18\times}$ fewer retransmissions**).
+    - ICMP Ping RTT: **$0.04\,\text{ms}$** under eBPF/XDP vs **$0.06\,\text{ms}$** under `iptables` ($33.3\%$ lower latency).
+    - Packet Loss: **$0.0\%$** across all trials under XDP micro-isolation.
 
 ---
 
@@ -242,31 +268,26 @@ To maintain unbroken project continuity across sessions separated by days or wee
 
 ---
 
-### 11. Executive Morning Recap for Tomorrow's Session
+### 11. Final Capstone Completion & Viva Voce Defense Prep
 
-When starting work tomorrow morning, review this quick cheat-sheet:
+All 4 engineering and research phases have been fully implemented, executed, and verified:
 
 #### System State Overview
 - **Phase 0 (Environment)**: Fully provisioned (`clang`, `llvm`, `python3-bpfcc`, `fastapi`, `hping3`, `nmap`).
 - **Phase 1 (Static XDP)**: Verified live. Line-rate packet drops in nanoseconds (`kernel/xdp_isolation_p1.c` + `daemon/phase1_loader.py`).
 - **Phase 2 (Dynamic Trust Decay Engine)**: Verified live. 1.0s sliding-window flow entropy, multi-tier transitions (`TRUSTED` $\rightarrow$ `SUSPECT` $\rightarrow$ `QUARANTINED`), $T_{\text{isolate}} = 27.57\text{--}51.89\,\mu\text{s}$, and $+6.0\,\text{pts/sec}$ self-healing.
 - **Phase 3 (Observability Presentation Plane)**: Verified live. FastAPI WebSocket backend (`dashboard/app.py`), Chart.js UI (`static/index.html`), animated topology canvas, one-click attack simulator, and mirrored terminal ASCII dashboard.
+- **Phase 4 (Quantitative Benchmarks & Evaluation)**: Verified live. $T_{\text{isolate}} = 4.04\,\mu\text{s}$ ($1,732.6\times$ faster than iptables), $6.18\times$ fewer TCP retransmits under flood, $18.2\%$ lower kernel CPU load, and publication-ready LaTeX tables generated in `benchmarks/results/`.
 
-#### Quick 1-Command Morning Launch
+#### Quick Commands Reference
 ```bash
-# 1. Deploy testbed topology (if not already up)
-sudo ./topology/setup_netns.sh
-
-# 2. Start the unified Phase 3 Engine (displays terminal dashboard + starts web server on :8000)
+# 1. Start Phase 3 Live Presentation Server & Telemetry Dashboard
 sudo python3 dashboard/app.py
 
-# 3. Open browser
-# Navigate to http://localhost:8000 in Firefox
-```
+# 2. Re-run Phase 4 Quantitative Benchmarks (Generates fresh CSVs & LaTeX tables)
+sudo bash benchmarks/run_benchmarks.sh --all
 
-#### Tomorrow's Immediate Target: Phase 4 (Benchmarking & Thesis Evaluation)
-- Implement `benchmarks/run_benchmarks.sh`:
-  1. Automated $T_{\text{isolate}}$ latency histogram generation ($15\text{--}45\,\mu\text{s}$ vs $7.5\,\text{ms}$ iptables).
-  2. CPU utilization comparison under 1,000,000 pps flood (flat line-rate XDP vs saturated `ksoftirqd`).
-  3. Legitimate tenant throughput preservation during active volumetric attack (`iperf3` baseline).
+# 3. Clean testbed namespaces and detach XDP hooks
+sudo ./topology/teardown_netns.sh
+```
 

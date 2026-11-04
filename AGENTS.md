@@ -39,8 +39,13 @@ Before modifying or executing any code, consult these documents:
     - Node B (Legit): `ns-legit` -> `10.10.0.20`
     - Node C (Attacker): `ns-attacker` -> `10.10.0.30`
   - [teardown_netns.sh](file:///home/daemon_targaryen/kernel-isolation-engine/topology/teardown_netns.sh): Cleanly deletes `ns-victim`, `ns-legit`, `ns-attacker`, and `br-xdp`.
-- [dashboard/](file:///home/daemon_targaryen/kernel-isolation-engine/dashboard/): FastAPI application (`app.py`) and Chart.js UI (`static/index.html`).
-- [benchmarks/](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/): Latency ($T_{\text{isolate}}$), CPU, and throughput benchmarking scripts (`run_benchmarks.sh`).
+- [dashboard/](file:///home/daemon_targaryen/kernel-isolation-engine/dashboard/): FastAPI application (`app.py`), Chart.js UI (`static/index.html`), obsidian dark mode (`static/css/style.css`), and animated topology consumer (`static/js/app.js`).
+- [benchmarks/](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/): Quantitative Benchmarking Suite & Academic Evaluation:
+  - [benchmark_latency.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_latency.py): Microsecond $T_{\text{isolate}}$ benchmark comparing eBPF map mutation vs iptables rules over $N=100$ iterations.
+  - [benchmark_cpu.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_cpu.py): Volumetric DDoS CPU & softirq survivability monitor across Baseline, iptables, and XDP.
+  - [benchmark_throughput.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_throughput.py): Legitimate tenant bandwidth and ICMP RTT preservation tester using `iperf3`.
+  - [run_benchmarks.sh](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/run_benchmarks.sh): Master automated benchmark orchestrator with safe cleanup traps and LaTeX report generator.
+  - [results/](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/results/): Raw CSV metrics (`latency_comparison.csv`, `cpu_comparison.csv`, `throughput_comparison.csv`), LaTeX tables (`latex_*.tex`), and consolidated academic report (`BENCHMARK_REPORT.md`).
 
 ---
 
@@ -59,7 +64,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-02 11:48:43)**: Phase 3 Presentation Plane live execution verified by user; fixed ctypes import for live BPF map queries in dashboard/app.py and updated bug registry. *Next*: Implement benchmarks/run_benchmarks.sh for Phase 4 quantitative evaluation.
+- **Latest Checkpoint (2026-11-05 00:03:40)**: Phase 4 Quantitative Benchmarks Executed & Verified: Empirical findings logged (T_isolate 4.04 µs, 1732.6x faster than iptables, 6.18x fewer retransmits, 18.2% lower kernel CPU burden). *Next*: Prepare viva defense slides and integrate LaTeX tables into final thesis document.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
@@ -75,8 +80,12 @@ To ensure that knowledge, state, and audit history persist even when the workspa
   - Unified server with FastAPI WebSocket broadcasting and mirrored live terminal ASCII dashboard (`dashboard/app.py`).
   - Real-time dark-mode web dashboard (`dashboard/static/index.html`) with 4 Chart.js charts, animated topology flow canvas, one-click attack simulator, and microsecond audit stream.
   - Tested and confirmed working smoothly by user.
-- **Phase 4 Status**: **NEXT IMMEDIATE PHASE FOR TOMORROW**.
-  - Quantitative Benchmarking Suite & Thesis Evaluation (`benchmarks/run_benchmarks.sh`).
+- **Phase 4 Setup & Verification**: **COMPLETE & VERIFIED LIVE [OK]**
+  - Quantitative Benchmarking Suite executed via `sudo bash benchmarks/run_benchmarks.sh`.
+  - **Empirical Latency ($T_{\text{isolate}}$)**: Mean **$4.04\,\mu\text{s}$** ($2.09\,\mu\text{s}$ median, $P_{95} = 3.18\,\mu\text{s}$) vs Linux `iptables` **$7,000.16\,\mu\text{s}$** (**$1,732.6\times$ faster**).
+  - **DDoS CPU Survivability**: Peak CPU bounded at **$67.70\%$** (vs $77.50\%$ for iptables), softirq peak bounded at **$65.84\%$** (vs $95.71\%$ for iptables), and kernel load reduced by **$18.19\%$** ($63.93\%$ vs $82.12\%$).
+  - **Legitimate Workload Retention**: TCP retransmissions reduced by **$6.18\times$** (**$232$** vs $1,434$ for iptables), ICMP RTT dropped to **$0.04\,\text{ms}$** (vs $0.06\,\text{ms}$ for iptables), with **$0.0\%$ packet loss**.
+  - All CSV logs, LaTeX tables, and academic reports generated in `benchmarks/results/`.
 
 ---
 

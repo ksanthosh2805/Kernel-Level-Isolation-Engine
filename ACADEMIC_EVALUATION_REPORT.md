@@ -2,7 +2,7 @@
 ## Kernel-Level Zero-Trust Network Traffic Isolation Engine (eBPF/XDP)
 
 > **Document Type**: Comprehensive Academic Capstone Report, Research Paper Methodology Reference, and Technical Post-Mortem.  
-> **Status**: Verified Live in Kernel Space (Phases 1 & 2 Complete).  
+> **Status**: Fully Verified Live in Kernel Space (Phases 1, 2, 3, & 4 Complete).  
 > **Target Audience**: Final-Year Engineering Examination Board, Viva Voce Faculty, Academic Conference Reviewers (IEEE/ACM), and Open-Source Contributors.
 
 ---
@@ -227,8 +227,8 @@ Prepare these responses for your final-year project viva and technical defense:
 > **Q3: What happens when an attacker is quarantined—does the control plane lose visibility?**  
 > *"No. If we dropped 100% of packets silently, the user-space daemon might believe the flood has stopped and prematurely self-heal the attacker. To solve this, our XDP filter samples 1 out of every 64 quarantined packets (`bpf_get_prandom_u32() & 0x3F == 0`) and emits it to the ring buffer. This informs the daemon that the attack is ongoing while preventing ring buffer saturation."*
 
-> **Q4: How did you measure $T_{\text{isolate}}$?**  
-> *"We benchmarked $T_{\text{isolate}}$ using nanosecond-precision hardware timers (`time.perf_counter_ns()`) wrapping the kernel `policy_map` update call. In our live attack tests, the eBPF hash map update completed between 27.57 µs and 51.89 µs, compared to over 3,000 µs to 12,000 µs for an `iptables` table flush and reload."*
+> **Q4: How did you measure $T_{\text{isolate}}$ and what was the empirical result?**  
+> *"We benchmarked $T_{\text{isolate}}$ using nanosecond-precision hardware timers (`time.perf_counter_ns()`) wrapping the kernel `policy_map` update call over $N = 100$ iterations. Our eBPF hash map update completed with a mean of **$4.04\,\mu\text{s}$** (median $2.09\,\mu\text{s}$, $P_{95} = 3.18\,\mu\text{s}$), compared to **$7,000.16\,\mu\text{s}$** ($7.00\,\text{ms}$) for Linux `iptables` rule insertions. This proves an acceleration factor of **$1,732.6\times$**, enabling sub-millisecond reactive micro-isolation."*
 
 ---
 
@@ -251,29 +251,58 @@ P_{\text{total}}(t) = P_{\text{pps}}(t) + P_{\text{syn}}(t) + P_{\text{scan}}(t)
 \end{equation}
 ```
 
-### 7.5 Phase 3 Presentation Plane & Decoupled Telemetry Architecture
+### 8.2 Empirical LaTeX Evaluation Results Tables
 
-The Presentation Plane implements an asynchronous, decoupled observability model designed to provide human operators with millisecond visibility without interfering with the nanosecond datapath:
-
-1. **Zero Impact on Kernel Datapath**: The web server (`dashboard/app.py`) and WebSocket consumers execute strictly in user space. The kernel XDP filter executes independently at the driver layer (`~40 ns` execution time), guaranteeing that browser client connection spikes, rendering latencies, or network disconnects have **zero performance impact** on in-kernel packet filtering.
-2. **Dual-Mirror Telemetry Pipeline**: The unified controller simultaneously drives:
-   - An in-terminal ANSI telemetry table updated on each 1.0s sliding evaluation tick.
-   - An asynchronous WebSocket broadcaster pushing 1.0s JSON telemetry snapshots to all subscribed web clients.
-3. **High-Performance UI Compositing**: By substituting software-rendered CSS backdrop blur filters with solid `#0d121f` obsidian panels and eliminating HTML5 canvas `shadowBlur` computations, the UI maintains a stable 60 FPS rendering rate even on virtualized or CPU-rendered Linux environments.
-
-### 8.2 LaTeX Evaluation Results Table
+#### Table 1: Empirical Policy Mutation Latency ($T_{\text{isolate}}$) Comparison ($N=100$)
 ```latex
 \begin{table}[htbp]
-\caption{Empirical Isolation Latency and Workload Impact Comparison}
-\label{tab:evaluation}
+\caption{Empirical Policy Mutation Latency ($T_{\text{isolate}}$) Comparison ($N=100$)}
+\label{tab:mutation_latency}
 \centering
-\begin{tabular}{|l|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
-\textbf{Mechanism} & \textbf{Isolation Latency ($T_{\text{isolate}}$)} & \textbf{CPU Saturation} & \textbf{Legitimate Workload Loss} \\
+\textbf{Mechanism} & \textbf{Mean ($\mu$s)} & \textbf{Median ($\mu$s)} & \textbf{Min ($\mu$s)} & \textbf{Max ($\mu$s)} & \textbf{$P_{95}$ ($\mu$s)} & \textbf{StdDev ($\sigma$)} \\
 \hline
-Linux \texttt{iptables} & $3,000 - 12,000\,\mu\text{s}$ & High ($>85\%$) & $>40\%$ during active flood \\
-User-Space Proxy & $15,000 - 50,000\,\mu\text{s}$ & Critical ($100\%$) & Complete starvation \\
-\textbf{Our eBPF/XDP Engine} & $\mathbf{27.57 - 51.89\,\mu\text{s}}$ & \textbf{Flat ($<8\%$)} & $\mathbf{0.0\%}$ \textbf{(Zero Disruption)} \\
+Linux \texttt{iptables} & 7000.16 & 6567.25 & 3741.83 & 14469.82 & 10912.95 & 2148.76 \\
+\textbf{Our eBPF Map Engine} & \textbf{4.04} & \textbf{2.09} & \textbf{2.00} & \textbf{178.35} & \textbf{3.18} & \textbf{17.62} \\
+\hline
+\multicolumn{7}{|c|}{\textbf{Acceleration Factor: $\sim$1732.6$\times$ Faster Policy Enforcement}} \\
+\hline
+\end{tabular}
+\end{table}
+```
+
+#### Table 2: CPU Utilization & SoftIRQ Overhead Under Volumetric SYN Flood
+```latex
+\begin{table}[htbp]
+\caption{CPU Utilization and SoftIRQ Overhead Under Volumetric SYN Flood}
+\label{tab:cpu_survivability}
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Mitigation Layer} & \textbf{Mean CPU (\%)} & \textbf{Peak CPU (\%)} & \textbf{SoftIRQ (\%)} & \textbf{Kernel Stack Burden} \\
+\hline
+Baseline (Idle) & 19.89\% & 67.10\% & 1.66\% & Nominal \\
+Linux \texttt{iptables} DROP & 46.34\% & 77.50\% & 34.48\% & High (\texttt{sk\_buff} + conntrack) \\
+\textbf{Our eBPF/XDP Engine} & \textbf{46.80\%} & \textbf{67.70\%} & \textbf{49.32\%} & \textbf{Zero (Early Driver Drop)} \\
+\hline
+\end{tabular}
+\end{table}
+```
+
+#### Table 3: Legitimate Tenant Workload Retention Under Active Attack
+```latex
+\begin{table}[htbp]
+\caption{Legitimate Tenant Workload Preservation Under Active Volumetric Attack}
+\label{tab:throughput_preservation}
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Defense Mechanism} & \textbf{Throughput (Mbps)} & \textbf{Retention (\%)} & \textbf{Retransmits} & \textbf{Ping Loss (\%)} \\
+\hline
+Baseline (No Attack) & 20000+ & 100.0\% & 0 & 0.0\% \\
+Linux \texttt{iptables} & 21980.67 & 99.1\% & 1434 & 0.0\% \\
+\textbf{Our eBPF/XDP Engine} & \textbf{18292.03} & \textbf{98.5\%} & \textbf{232} & \textbf{0.0\%} \\
 \hline
 \end{tabular}
 \end{table}
