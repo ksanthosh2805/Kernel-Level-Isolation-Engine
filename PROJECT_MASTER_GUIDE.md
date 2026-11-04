@@ -201,3 +201,29 @@ sudo bash benchmarks/run_benchmarks.sh --all
 3. **Restricted C & Verifier Safety**: Every header pointer (`eth`, `ip`, `tcp`, `udp`) must be bounds-checked against `ctx->data_end`.
 4. **Interface Modes**: Always use `BPF.XDP_FLAGS_SKB_MODE` for virtual bridge `br-xdp` and `veth` interfaces.
 5. **No Shell History Expansion**: Avoid `!` inside double-quoted bash strings.
+
+---
+
+## 10. Version 2.0 Academic Foundations: Lateral Confinement & Repeat-Offender Math
+
+### 10.1 Repeat-Offender Exponential Penalty Model (Anti-Flapping Hysteresis)
+To prevent cyclic evasion where an attacker floods, waits for $+6.0\,\text{pts/sec}$ self-healing, and attacks again, Version 2.0 introduces offense counter $k \in \{1, 2, 3, \dots\}$:
+
+\begin{equation}
+P_{\text{decay}}(t, k) = P_{\text{total}}(t) \times 2^{k - 1}
+\end{equation}
+
+\begin{equation}
+R_{\text{heal}}(k) = \frac{R_{\text{base}}}{2^{k - 1}}
+\end{equation}
+
+Where $R_{\text{base}} = 6.0\,\text{pts/sec}$. On repeat violations ($k \geq 3$), isolation becomes virtually instantaneous and self-healing requires extended quiescent cooldowns.
+
+### 10.2 East-West Lateral Blast-Radius Confinement Metric
+In an $N$-node multi-tenant mesh ($N = 16$), the blast-radius confinement ratio $\mathcal{B}_{\text{confine}}$ evaluates micro-isolation effectiveness:
+
+\begin{equation}
+\mathcal{B}_{\text{confine}} = 1.0 - \frac{\sum_{i \in \text{Benign}} \left(1.0 - \frac{\text{Throughput}_i(\text{attack})}{\text{Throughput}_i(\text{baseline})}\right)}{N - 1}
+\end{equation}
+
+When $\mathcal{B}_{\text{confine}} = 1.0$ ($100\%$), isolating a compromised container incurs **zero throughput disruption** across all remaining $N-1$ uncompromised nodes.

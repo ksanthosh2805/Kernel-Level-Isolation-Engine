@@ -64,7 +64,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-05 00:03:40)**: Phase 4 Quantitative Benchmarks Executed & Verified: Empirical findings logged (T_isolate 4.04 µs, 1732.6x faster than iptables, 6.18x fewer retransmits, 18.2% lower kernel CPU burden). *Next*: Prepare viva defense slides and integrate LaTeX tables into final thesis document.
+- **Latest Checkpoint (2026-11-05 00:48:58)**: Version 2.0 Step 1 Complete: Created 16-node multi-tier cluster topology scripts (setup_netns_cluster.sh & teardown_netns_cluster.sh) and updated all conscience stores with East-West lateral isolation & 2^(k-1) penalty models. *Next*: Deploy topology via sudo bash topology/setup_netns_cluster.sh and test cluster reachability.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
@@ -86,6 +86,10 @@ To ensure that knowledge, state, and audit history persist even when the workspa
   - **DDoS CPU Survivability**: Peak CPU bounded at **$67.70\%$** (vs $77.50\%$ for iptables), softirq peak bounded at **$65.84\%$** (vs $95.71\%$ for iptables), and kernel load reduced by **$18.19\%$** ($63.93\%$ vs $82.12\%$).
   - **Legitimate Workload Retention**: TCP retransmissions reduced by **$6.18\times$** (**$232$** vs $1,434$ for iptables), ICMP RTT dropped to **$0.04\,\text{ms}$** (vs $0.06\,\text{ms}$ for iptables), with **$0.0\%$ packet loss**.
   - All CSV logs, LaTeX tables, and academic reports generated in `benchmarks/results/`.
+- **Phase 5 (v2.0) Active Development**: **IN PROGRESS**
+  - **16-Node Enterprise Microservice Mesh**: 4x4 multi-tier cluster (`10.20.0.0/24`) simulating Web, API, Database, Client, and Adversary tiers.
+  - **East-West Lateral Movement Micro-Isolation**: Intercept inter-container reconnaissance sweeps at driver hooks with zero blast-radius disruption to peaceful nodes.
+  - **Repeat-Offender Hysteresis Algorithm**: Exponential penalty scaling ($\text{Penalty} \times 2^{k-1}$) and throttled self-healing ($R_{\text{heal}} / 2^{k-1}$) against evasion loops.
 
 ---
 

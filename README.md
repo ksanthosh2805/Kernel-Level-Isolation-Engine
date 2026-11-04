@@ -348,6 +348,11 @@ sudo ./topology/teardown_netns.sh
 - [x] **Phase 2: Closed-Loop Dynamic Trust Decay Engine & Ring Buffer Streaming**
 - [x] **Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets + Chart.js UI + Attack Simulator)**
 - [x] **Phase 4: Comprehensive Benchmarking Suite & Academic Publication Packaging** *(COMPLETED & VERIFIED LIVE)*
+- [ ] **Phase 5 (v2.0): 16-Node Enterprise Microservice Mesh & Lateral Blast-Radius Confinement** *(ACTIVE DEVELOPMENT)*
+  - [x] **Step 1**: 16-Node 4x4 Cluster Topology Provisioner (`setup_netns_cluster.sh`)
+  - [ ] **Step 2**: 16-Port eBPF Datapath & East-West Policy Matrix (`xdp_isolation_v2.c`)
+  - [ ] **Step 3**: Repeat-Offender Hysteresis Algorithm ($2^{k-1}$) & Swarm Trust Daemon (`cluster_daemon.py`)
+  - [ ] **Step 4**: 4x4 Matrix Observability Dashboard & Blast-Radius Confinement Benchmarks
 
 ---
 

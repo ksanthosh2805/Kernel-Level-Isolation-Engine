@@ -137,6 +137,25 @@ sudo ip netns exec ns-attacker ping -c 2 10.10.0.10
    - Publication-Ready LaTeX Tables: `benchmarks/results/latex_*.tex`
    - Raw Metric CSVs: `benchmarks/results/*.csv`
 
+### Runbook 6: Version 2.0 16-Node Cluster Operations
+1. **Deploy 16-Node Cluster Topology**:
+   ```bash
+   sudo bash ~/kernel-isolation-engine/topology/setup_netns_cluster.sh
+   ```
+2. **Verify Inter-Cluster Reachability**:
+   ```bash
+   sudo ip netns exec ns-web-01 ping -c 2 10.20.0.31   # web-01 -> db-primary
+   sudo ip netns exec ns-client-alpha ping -c 2 10.20.0.11 # client -> web-01
+   ```
+3. **Simulate East-West Lateral Port Scan**:
+   ```bash
+   sudo ip netns exec ns-attk-lateral nmap -sS -p 1-1024 10.20.0.31
+   ```
+4. **Teardown 16-Node Cluster**:
+   ```bash
+   sudo bash ~/kernel-isolation-engine/topology/teardown_netns_cluster.sh
+   ```
+
 ---
 
 ## 6. Critical Guidelines for Future Agents

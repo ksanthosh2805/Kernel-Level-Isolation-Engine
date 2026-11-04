@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-05 00:03:40)**: Phase 4 Quantitative Benchmarks Executed & Verified: Empirical findings logged (T_isolate 4.04 µs, 1732.6x faster than iptables, 6.18x fewer retransmits, 18.2% lower kernel CPU burden). *Next*: Prepare viva defense slides and integrate LaTeX tables into final thesis document.
+- **Latest Checkpoint (2026-11-05 00:48:58)**: Version 2.0 Step 1 Complete: Created 16-node multi-tier cluster topology scripts (setup_netns_cluster.sh & teardown_netns_cluster.sh) and updated all conscience stores with East-West lateral isolation & 2^(k-1) penalty models. *Next*: Deploy topology via sudo bash topology/setup_netns_cluster.sh and test cluster reachability.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
@@ -290,4 +290,63 @@ sudo bash benchmarks/run_benchmarks.sh --all
 # 3. Clean testbed namespaces and detach XDP hooks
 sudo ./topology/teardown_netns.sh
 ```
+
+---
+
+### 12. Version 2.0: 16-Node Enterprise Microservice Cluster Architecture
+
+Subnet: `10.20.0.0/24` | Master Bridge: `br-xdp-v2` (`10.20.0.1`)
+
+| Tier & Role | Namespace | Assigned IPv4 | Host Bridge Veth Port | Internal Interface | Port Protocol / Services |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Bridge Master** | Host | `10.20.0.1/24` | `br-xdp-v2` | — | Virtual Bridge Master |
+| **Tier 1: Web Ingress** | `ns-web-01` | `10.20.0.11` | `veth-w01-br` | `eth0` | TCP 80/443 (HTTP/HTTPS) |
+| **Tier 1: Web Ingress** | `ns-web-02` | `10.20.0.12` | `veth-w02-br` | `eth0` | TCP 80/443 (HTTP/HTTPS) |
+| **Tier 1: Web Ingress** | `ns-web-03` | `10.20.0.13` | `veth-w03-br` | `eth0` | TCP 80/443 (HTTP/HTTPS) |
+| **Tier 1: Web Ingress** | `ns-web-04` | `10.20.0.14` | `veth-w04-br` | `eth0` | TCP 80/443 (HTTP/HTTPS) |
+| **Tier 2: Microservices** | `ns-api-auth` | `10.20.0.21` | `veth-a01-br` | `eth0` | TCP 8080 (Auth Microservice) |
+| **Tier 2: Microservices** | `ns-api-order` | `10.20.0.22` | `veth-a02-br` | `eth0` | TCP 8081 (Order Microservice) |
+| **Tier 2: Microservices** | `ns-api-pay` | `10.20.0.23` | `veth-a03-br` | `eth0` | TCP 8082 (Payment Microservice) |
+| **Tier 2: Microservices** | `ns-api-user` | `10.20.0.24` | `veth-a04-br` | `eth0` | TCP 8083 (User Profile API) |
+| **Tier 3: Database & Cache** | `ns-db-primary` | `10.20.0.31` | `veth-d01-br` | `eth0` | TCP 5432 (PostgreSQL Primary) |
+| **Tier 3: Database & Cache** | `ns-db-replica` | `10.20.0.32` | `veth-d02-br` | `eth0` | TCP 5432 (PostgreSQL Read Replica) |
+| **Tier 3: Database & Cache** | `ns-redis-cache` | `10.20.0.33` | `veth-d03-br` | `eth0` | TCP 6379 (Redis In-Memory Cache) |
+| **Tier 3: Database & Cache** | `ns-elastic-search` | `10.20.0.34` | `veth-d04-br` | `eth0` | TCP 9200 (Elasticsearch Analytics) |
+| **Tier 4: Peripheral Clients** | `ns-client-alpha` | `10.20.0.41` | `veth-c01-br` | `eth0` | Batch API Consumer / Tenant |
+| **Tier 4: Peripheral Clients** | `ns-client-beta` | `10.20.0.42` | `veth-c02-br` | `eth0` | Mobile Gateway Simulator |
+| **Tier 4: Adversary Nodes** | `ns-attk-lateral` | `10.20.0.51` | `veth-x01-br` | `eth0` | Stealth Lateral Scan Attacker |
+| **Tier 4: Adversary Nodes** | `ns-attk-ddos` | `10.20.0.52` | `veth-x02-br` | `eth0` | High-Rate SYN Flood Attacker |
+
+*Note: All interface names are $\leq 15$ characters to conform strictly with Linux kernel `IFNAMSIZ` (16 bytes including `\0`).*
+
+---
+
+### 13. Executive Morning Briefing: Tomorrow's Step 2 and Following Phase Roadmap
+
+When starting tomorrow's session, review this operational blueprint:
+
+#### Where We Stand (Step 1 Complete)
+- **Branch**: `v2` (Version 2.0 Feature Development).
+- **Step 1 Completed**: `topology/setup_netns_cluster.sh` and `topology/teardown_netns_cluster.sh` are authored and syntax-checked. They automate the 16-node 4x4 cluster on `10.20.0.0/24` with zero memory overhead.
+- **Conscience Status**: Synchronized across `AGENTS.md`, `project_state.json`, and `PROJECT_MASTER_GUIDE.md`.
+
+#### Tomorrow's Immediate Target: Step 2 — 16-Port eBPF Kernel Datapath (`kernel/xdp_isolation_v2.c`)
+In Step 2, author the high-density eBPF filter engineered for 16 concurrent container ports:
+1. **LRU Scaled Policy Map**:
+   - Upgrade from standard fixed hash to `BPF_TABLE("lru_hash", u32, u32, policy_map, 65536)` to support tens of thousands of dynamic flow states with $O(1)$ memory bounds.
+2. **East-West Micro-Isolation Matrix (`east_west_policy`)**:
+   - Introduce a composite 64-bit key table `BPF_HASH(east_west_policy, u64, u32)` encoding `((u64)src_ip << 32) | (u64)dst_ip`.
+   - Allows strict tier boundaries: e.g. `Tier 1 (Web)` may talk to `Tier 2 (APIs)` on 8080–8083, but any direct connection from `Tier 1` to `Tier 3 (DB 5432)` or `Tier 4` is immediately flagged as anomalous lateral movement.
+3. **Automated Multi-Interface Attachment**:
+   - Python BCC loader iterates through all 16 `veth-*-br` interfaces, automatically binding the XDP program in `XDP_FLAGS_SKB_MODE`.
+
+#### Following Phase Roadmap
+- **Step 3 (Control Plane: `daemon/cluster_daemon.py`)**:
+  - Implement the $2^{k-1}$ Repeat-Offender Hysteresis Algorithm ($P \times 2^{k-1}$, $R_{\text{heal}} / 2^{k-1}$).
+  - Implement Sliding-Window Target Ingress Aggregation for distributed botnet correlation.
+- **Step 4 (Presentation Plane: 4x4 Enterprise Cluster Grid)**:
+  - Upgrade dashboard UI to display the 4x4 symmetric matrix (Web, API, DB, Clients/Attacker).
+  - Animate lateral reconnaissance sweeps getting deflected at driver barriers.
+- **Step 5 (High-Density Benchmarking: `benchmarks/benchmark_cluster.py`)**:
+  - Measure blast-radius confinement ratio ($\mathcal{B}_{\text{confine}}$) and generate IEEE publication LaTeX tables for the 16-node cluster under multi-attacker floods.
 
