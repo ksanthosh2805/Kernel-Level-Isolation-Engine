@@ -307,3 +307,52 @@ Linux \texttt{iptables} & 21980.67 & 99.1\% & 1434 & 0.0\% \\
 \end{tabular}
 \end{table}
 ```
+
+---
+
+## 9. Version 2.0 Academic Extension: 16-Node Mesh, Lateral Isolation & Hysteresis
+
+In response to academic capstone faculty recommendations, Version 2.0 extends the kernel isolation engine from the foundational 3-node proof-of-concept into an **enterprise-grade 16-node container micro-cluster** designed for top-tier conference publication (IEEE / ACM).
+
+### 9.1 The Unified Three-Pillar v2.0 Architecture
+
+Version 2.0 unifies three core academic research innovations into a single closed-loop system:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│  Idea C: Algorithmic Math (Anti-Flapping Penalty: Penalty * 2^(k-1))   │
+├────────────────────────────────────────────────────────────────────────┤
+│  Idea B: Security Mechanism (East-West Lateral Movement Micro-Iso)     │
+├────────────────────────────────────────────────────────────────────────┤
+│  Idea A: Infrastructure Foundation (16-Node 4x4 Multi-Tier Netns)      │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Pillar 1 (Idea A): High-Density 16-Node 4×4 Container Swarm
+- **Infrastructure**: Automated via [`topology/setup_netns_cluster.sh`](file:///home/daemon_targaryen/kernel-isolation-engine/topology/setup_netns_cluster.sh) on subnet `10.20.0.0/24` with virtual bridge `br-xdp-v2` (`10.20.0.1`).
+- **Hardware Efficiency**: Pure Linux network namespaces (`ip netns`) require $<11\,\text{MB}$ total RAM and zero background CPU, maintaining complete kernel isolation without running heavy container engines.
+- **Tier Layout**:
+  - **Tier 1 (Web)**: `ns-web-01` to `ns-web-04` (`10.20.0.11–14`, HTTP/S).
+  - **Tier 2 (APIs)**: `ns-api-auth`, `ns-api-order`, `ns-api-pay`, `ns-api-user` (`10.20.0.21–24`, Ports 8080–8083).
+  - **Tier 3 (Data)**: `ns-db-primary`, `ns-db-replica`, `ns-redis-cache`, `ns-elastic-search` (`10.20.0.31–34`).
+  - **Tier 4 (Peripherals)**: 2 Legitimate Clients (`client-alpha`, `client-beta`) + 2 Attackers (`attacker-lateral`, `attacker-ddos`).
+
+#### Pillar 2 (Idea B): East-West Lateral Movement & Blast-Radius Confinement
+- **The Gap**: Traditional perimeter firewalls only inspect North-South ingress. When an attacker breaches a web container (`web-01`), they pivot laterally across the bridge to probe internal databases (`db-primary` on port 5432).
+- **The Innovation**: The XDP driver hook inspects inter-container forwarded frames directly on bridge member ports (`veth-*-br`). Cross-tier reconnaissance sweeps trigger sliding-window port entropy spikes, dropping the offending container in microseconds at ingress.
+- **Academic Metric**: Lateral Blast-Radius Confinement Ratio $\mathcal{B}_{\text{confine}}$:
+  \begin{equation}
+  \mathcal{B}_{\text{confine}} = 1.0 - \frac{\sum_{i \in \text{Benign}} \left(1.0 - \frac{\text{Throughput}_i(\text{attack})}{\text{Throughput}_i(\text{baseline})}\right)}{N - 1}
+  \end{equation}
+  Achieving $\mathcal{B}_{\text{confine}} = 1.0$ ($100\%$) confirms zero throughput penalty or collateral damage across all $N-1 = 15$ adjacent benign nodes.
+
+#### Pillar 3 (Idea C): Repeat-Offender Exponential Penalty Model ($2^{k-1}$)
+- **The Gap**: Existing rate-limiters allow attackers to flood, wait for self-healing to restore their trust score, and attack again in an evasion loop.
+- **The Innovation**: Tracks historical offense counter $k \in \{1, 2, 3, \dots\}$. Each repeat violation exponentially doubles the trust decay penalty while halving the autonomous recovery rate:
+  \begin{equation}
+  P_{\text{decay}}(t, k) = P_{\text{total}}(t) \times 2^{k - 1}
+  \end{equation}
+  \begin{equation}
+  R_{\text{heal}}(k) = \frac{R_{\text{base}}}{2^{k - 1}}
+  \end{equation}
+  A first-time bursty node recovers in seconds ($k=1$); a persistent attacker ($k \geq 3$) is effectively permanently quarantined with exponential cooldowns.
