@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-06 00:39:11)**: Pushed IEEE conference paper manuscript to remote GitHub branch academic-presentation. *Next*: Resume Version 3.0 development on branch v3 when ready.
+- **Latest Checkpoint (2026-11-06 00:54:22)**: Adapt IEEE paper and generate Reference_Template_Format_Paper.docx. *Next*: User to review DOCX and LaTeX paper or instruct to push to remote.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
