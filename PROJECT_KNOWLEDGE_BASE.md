@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-06 00:15:07)**: Version 3.0 Scope Defined: Any-to-Any Dynamic Threat Matrix & 5 Multi-Vector Threat Engines (SYN, UDP, Xmas, Port Scan, Low-and-Slow). *Next*: Phase 3.1: Author kernel/xdp_isolation_v3.c with L4 UDP and bitwise TCP flag inspection.
+- **Latest Checkpoint (2026-11-05 23:53:01)**: Created branch v3 from v2 to establish clean foundation for Version 3.0 development. *Next*: User to specify Version 3.0 requirements and architectural changes.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
