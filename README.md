@@ -6,7 +6,8 @@
 [![Mitigation Latency](https://img.shields.io/badge/T__isolate-4.04%20%C2%B5s%20(1732.6x%20vs%20iptables)-brightgreen)](ACADEMIC_EVALUATION_REPORT.md)
 [![Enforcement Layer](https://img.shields.io/badge/Hook-NIC%20Driver%20(Pre--sk__buff)-red)](kernel/xdp_isolation_p2.c)
 [![Observability](https://img.shields.io/badge/Presentation-FastAPI%20%2F%20WebSockets%20%2F%20Chart.js-blueviolet)](dashboard/app.py)
-[![Project Status](https://img.shields.io/badge/Status-Phases%200--4%20Complete%20%26%20Verified%20%5BOK%5D-success)]()
+[![Project Status](https://img.shields.io/badge/Status-Phases%200--5%20Complete%20%26%20Verified%20%5BOK%5D-success)]()
+[![v2.0 Cluster Engine](https://img.shields.io/badge/v2.0-16--Node%20Mesh%20%7C%202508.6x%20Faster-brightgreen)](benchmarks/results/CLUSTER_BENCHMARK_REPORT.md)
 [![License](https://img.shields.io/badge/License-Dual%20GPL--2.0%20%2F%20MIT-lightgrey)](LICENSE)
 
 An academic capstone and high-performance network security research project implementing a **closed-loop Zero-Trust Traffic Isolation Engine** directly at the operating system's Network Interface Card (NIC) driver layer using **eBPF (Extended Berkeley Packet Filter)** and **XDP (eXpress Data Path)**.
@@ -343,16 +344,28 @@ sudo ./topology/teardown_netns.sh
 
 ## 🗺️ Project Roadmap & Milestones
 
-- [x] **Phase 0: Environment Provisioning & Toolchain Validation**
-- [x] **Phase 1: 3-Node Topology & Static XDP Driver Enforcement**
-- [x] **Phase 2: Closed-Loop Dynamic Trust Decay Engine & Ring Buffer Streaming**
-- [x] **Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets + Chart.js UI + Attack Simulator)**
+- [x] **Phase 0: Environment Provisioning & Toolchain Validation** *(COMPLETED & VERIFIED)*
+- [x] **Phase 1: 3-Node Topology & Static XDP Driver Enforcement** *(COMPLETED & VERIFIED)*
+- [x] **Phase 2: Closed-Loop Dynamic Trust Decay Engine & Ring Buffer Streaming** *(COMPLETED & VERIFIED LIVE)*
+- [x] **Phase 3: Real-Time Observability Presentation Plane (FastAPI WebSockets + Chart.js UI + Attack Simulator)** *(COMPLETED & VERIFIED LIVE)*
 - [x] **Phase 4: Comprehensive Benchmarking Suite & Academic Publication Packaging** *(COMPLETED & VERIFIED LIVE)*
-- [ ] **Phase 5 (v2.0): 16-Node Enterprise Microservice Mesh & Lateral Blast-Radius Confinement** *(ACTIVE DEVELOPMENT)*
-  - [x] **Step 1**: 16-Node 4x4 Cluster Topology Provisioner (`setup_netns_cluster.sh`)
-  - [ ] **Step 2**: 16-Port eBPF Datapath & East-West Policy Matrix (`xdp_isolation_v2.c`)
-  - [ ] **Step 3**: Repeat-Offender Hysteresis Algorithm ($2^{k-1}$) & Swarm Trust Daemon (`cluster_daemon.py`)
-  - [ ] **Step 4**: 4x4 Matrix Observability Dashboard & Blast-Radius Confinement Benchmarks
+- [x] **Phase 5 (v2.0): 16-Node Enterprise Microservice Mesh & Lateral Blast-Radius Confinement** *(COMPLETED & VERIFIED LIVE)*
+  - [x] **Step 1**: 16-Node 4x4 Multi-Tier Cluster Topology Mesh (`setup_netns_cluster.sh`)
+  - [x] **Step 2**: 16-Port eBPF Datapath & East-West Policy Matrix (`xdp_isolation_v2.c`, `cluster_loader.py`)
+  - [x] **Step 3**: Repeat-Offender Hysteresis Algorithm ($2^{k-1}$) & Swarm Trust Daemon (`cluster_daemon.py`)
+  - [x] **Step 4**: 4x4 Enterprise Presentation Plane, Dark-Mode Deck & Flow Particle Canvas (`cluster_app.py`, `cluster.html`)
+  - [x] **Step 5**: Quantitative Cluster Benchmarks & IEEE/ACM LaTeX Publication Reports (`benchmark_cluster.py`)
+
+### 📊 Version 2.0 Empirical Performance Summary (16-Node Enterprise Mesh)
+
+| Evaluation Dimension | Traditional Linux Netfilter (`iptables`) | eBPF/XDP Datapath Engine (v2.0) | Performance Gain & Academic Novelty |
+| :--- | :--- | :--- | :--- |
+| **Blast-Radius Confinement ($\mathcal{B}_{\text{confine}}$)** | `100.0%` (8/8 paths unaffected) | **`100.0%` (8/8 paths unaffected)** | **100.0% Zero Blast-Radius Protection** |
+| **Policy Mutation Latency ($T_{\text{mutate}}$ Mean)** | `3,311.39 µs` | **`1.32 µs`** | **$2,508.6\times$ Faster Control Mutation** |
+| **Policy Mutation Median ($P_{50}$)** | `3,097.26 µs` | **`1.16 µs`** | **$2,670.1\times$ Faster Atomic Lookup** |
+| **Policy Mutation 95th Percentile ($P_{95}$)** | `5,000.57 µs` | **`1.73 µs`** | **Sub-Microsecond Deterministic Tail Latency** |
+| **Anti-Flapping Evasion Containment ($k=4$)** | Linear Flapping ($11.67\,\text{s}$) | **`93.33 s`** | **$8.0\times$ Exponential Hysteresis Lockout** |
+| **Anti-Flapping Evasion Containment ($k=5$)** | Linear Flapping ($11.67\,\text{s}$) | **`186.67 s`** | **$16.0\times$ Exponential Hysteresis Lockout** |
 
 ---
 

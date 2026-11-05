@@ -50,7 +50,9 @@ Before modifying or executing any code, consult these documents:
   - [benchmark_cpu.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_cpu.py): Volumetric DDoS CPU & softirq survivability monitor across Baseline, iptables, and XDP.
   - [benchmark_throughput.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_throughput.py): Legitimate tenant bandwidth and ICMP RTT preservation tester using `iperf3`.
   - [run_benchmarks.sh](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/run_benchmarks.sh): Master automated benchmark orchestrator with safe cleanup traps and LaTeX report generator.
-  - [results/](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/results/): Raw CSV metrics (`latency_comparison.csv`, `cpu_comparison.csv`, `throughput_comparison.csv`), LaTeX tables (`latex_*.tex`), and consolidated academic report (`BENCHMARK_REPORT.md`).
+  - [benchmark_cluster.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_cluster.py): Phase 5 (v2.0) 16-node cluster benchmark evaluating Blast-Radius Confinement ($\mathcal{B}_{\text{confine}} = 100\%$), 16-port map mutation ($1.32\,\mu\text{s}$), and $2^{k-1}$ hysteresis lockout ($8.0\times$).
+  - [run_cluster_benchmarks.sh](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/run_cluster_benchmarks.sh): Phase 5 (v2.0) automated cluster benchmarking runner with safe teardown traps.
+  - [results/](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/results/): Raw CSV metrics (`latency_comparison.csv`, `cluster_benchmark.csv`), LaTeX tables (`latex_cluster_table.tex`), and consolidated academic reports (`BENCHMARK_REPORT.md`, `CLUSTER_BENCHMARK_REPORT.md`).
 
 ---
 
@@ -69,7 +71,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-05 21:14:03)**: Version 2.0 Step 4 Verified Live: 16-Node Enterprise Presentation Plane fully operational with live WebSocket streaming, strict Zero-Trust score-to-state synchronization, 60 FPS batched canvas particle engine, and verified multi-vector attack/neutralize controls. *Next*: Implement Step 5: Quantitative Cluster Benchmarking Suite (benchmarks/benchmark_cluster.py) to measure Blast-Radius Confinement Ratio B_confine and generate IEEE/ACM LaTeX tables.
+- **Latest Checkpoint (2026-11-05 22:57:01)**: Version 2.0 Step 5 Complete & Verified Live: Quantitative Cluster Benchmarks completed with 100% Blast-Radius Confinement, 2508.6x faster mutation (1.32 µs), and 8.0x hysteresis lockout. *Next*: User to review academic artifacts, prepare defense presentation, or instruct to push to remote GitHub branch v2.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
@@ -91,12 +93,12 @@ To ensure that knowledge, state, and audit history persist even when the workspa
   - **DDoS CPU Survivability**: Peak CPU bounded at **$67.70\%$** (vs $77.50\%$ for iptables), softirq peak bounded at **$65.84\%$** (vs $95.71\%$ for iptables), and kernel load reduced by **$18.19\%$** ($63.93\%$ vs $82.12\%$).
   - **Legitimate Workload Retention**: TCP retransmissions reduced by **$6.18\times$** (**$232$** vs $1,434$ for iptables), ICMP RTT dropped to **$0.04\,\text{ms}$** (vs $0.06\,\text{ms}$ for iptables), with **$0.0\%$ packet loss**.
   - All CSV logs, LaTeX tables, and academic reports generated in `benchmarks/results/`.
-- **Phase 5 (v2.0) Active Development**: **STEPS 1–4 COMPLETE & VERIFIED LIVE [OK]**
+- **Phase 5 (v2.0) Milestone**: **ALL STEPS 1–5 COMPLETE & VERIFIED LIVE [OK]**
   - **Step 1 (16-Node Enterprise Microservice Mesh)**: **COMPLETE & VERIFIED [OK]**. 4x4 multi-tier cluster (`10.20.0.0/24`) simulating Web, API, Database, Client, and Adversary tiers in pure Linux `ip netns` (<11 MB RAM).
   - **Step 2 (16-Port eBPF Datapath & Controller)**: **COMPLETE & VERIFIED [OK]**. Canonical 65k `policy_map`, 64-bit East-West matrix (`east_west_matrix`), wire-speed driver drops (~40 ns), and sub-microsecond map mutation ($10.59\,\mu\text{s}$).
   - **Step 3 (Swarm Trust Decay Daemon)**: **COMPLETE & VERIFIED LIVE [OK]**. Closed-loop ring buffer consumer with $2^{k-1}$ repeat-offender anti-flapping hysteresis ($P \times 2^{k-1}$, $R_{\text{heal}} / 2^{k-1}$) and zero collateral degradation to legitimate nodes.
   - **Step 4 (16-Node 4x4 Presentation Plane)**: **COMPLETE & VERIFIED LIVE [OK]**. FastAPI WebSocket server (`dashboard/cluster_app.py`), dark-mode UI (`dashboard/static/cluster.html`), batched Canvas 2D particle visualizer, dynamic throughput vs discard rate curves, and one-click attack simulations with instantaneous process-group neutralization.
-  - **Step 5 (Cluster Quantitative Benchmarking & IEEE/ACM LaTeX Report)**: **READY FOR IMPLEMENTATION**. Quantitative Blast-Radius Confinement Ratio ($\mathcal{B}_{\text{confine}}$), multi-port eBPF map mutation benchmarking ($T_{\text{mutate}}$), and academic publication tables.
+  - **Step 5 (Cluster Quantitative Benchmarking & IEEE/ACM LaTeX Report)**: **COMPLETE & VERIFIED LIVE [OK]**. Quantitative Blast-Radius Confinement Ratio ($\mathcal{B}_{\text{confine}} = \mathbf{100.0\%}$ across 8 inter-tier paths), multi-port eBPF map mutation latency ($T_{\text{mutate}} = \mathbf{1.32\,\mu\text{s}}$ vs $3,311.39\,\mu\text{s}$ for `iptables`, $\mathbf{2,508.6\times}$ faster), and $2^{k-1}$ anti-flapping hysteresis lockout ($\mathbf{8.0\times}$ at $k=4$, $\mathbf{16.0\times}$ at $k=5$). LaTeX tables, CSV metrics, and academic report generated in `benchmarks/results/`.
 
 ---
 

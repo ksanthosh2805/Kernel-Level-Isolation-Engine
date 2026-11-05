@@ -223,3 +223,29 @@
 - **Files**: None specified
 - **Next Step**: Implement Step 5: Quantitative Cluster Benchmarking Suite (benchmarks/benchmark_cluster.py) to measure Blast-Radius Confinement Ratio B_confine and generate IEEE/ACM LaTeX tables
 
+
+## 2026-11-05 21:28:35 — Version 2.0 Step 5 Implemented: Quantitative Cluster Benchmarking Suite (benchmarks/benchmark_cluster.py & run_cluster_benchmarks.sh) to measure Blast-Radius Confinement Ratio B_confine, 16-port eBPF mutation latency, and hysteresis escalation dynamics
+- **Phase**: Phase 5 (v2.0)
+- **Files**: None specified
+- **Next Step**: Execute cluster benchmarks in terminal: sudo bash benchmarks/run_cluster_benchmarks.sh
+
+
+## 2026-11-05 22:36:34 — Step 5 Bug Resolved: Fixed BCC XDP_FLAGS_SKB_MODE in benchmark_cluster.py and bridge check in run_cluster_benchmarks.sh
+- **Phase**: Phase 5 (v2.0)
+- **Files**: `benchmarks/benchmark_cluster.py`, `benchmarks/run_cluster_benchmarks.sh`, `PROJECT_KNOWLEDGE_BASE.md`
+- **Next Step**: User to re-run cluster benchmark suite: sudo bash benchmarks/run_cluster_benchmarks.sh
+
+
+## 2026-11-05 22:52:34 — Step 5 Bug Resolved: Fixed ctypes.c_uint32 byref TypeError for policy_map in benchmark_cluster.py
+- **Phase**: Phase 5 (v2.0)
+- **Files**: `benchmarks/benchmark_cluster.py`, `PROJECT_KNOWLEDGE_BASE.md`
+- **Next Step**: User to re-run cluster benchmark suite: sudo bash benchmarks/run_cluster_benchmarks.sh
+
+
+## 2026-11-05 22:57:01 — Version 2.0 Step 5 Complete & Verified Live: Quantitative Cluster Benchmarks completed with 100% Blast-Radius Confinement, 2508.6x faster mutation (1.32 µs), and 8.0x hysteresis lockout
+- **Phase**: Phase 5 (v2.0)
+- **Files**: `benchmarks/benchmark_cluster.py`, `benchmarks/run_cluster_benchmarks.sh`, `benchmarks/results/latex_cluster_table.tex`, `benchmarks/results/cluster_benchmark.csv`, `benchmarks/results/CLUSTER_BENCHMARK_REPORT.md`, `PROJECT_KNOWLEDGE_BASE.md`
+- **Next Step**: User to review academic artifacts, prepare defense presentation, or instruct to push to remote GitHub branch v2
+- **Conversational & Decision Context**:
+  > User executed sudo bash benchmarks/run_cluster_benchmarks.sh. All 3 experiments passed cleanly: (1) B_confine=100.0% confinement across 8 paths with 0% loss; (2) T_mutate=1.32 µs mean for eBPF hash map vs 3311.39 µs for iptables (2508.6x faster); (3) Anti-flapping hysteresis achieved 8.0x lockout at k=4 (93.33s) and 16.0x at k=5 (186.67s). LaTeX table, CSV, and markdown report generated in benchmarks/results/.
+

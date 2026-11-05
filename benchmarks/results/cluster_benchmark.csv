@@ -1,0 +1,5 @@
+experiment,metric,iptables_val,xdp_val,gain
+confinement,b_confine_ratio,100.0,100.0,100% confinement
+latency,t_mutate_mean_us,3311.39,1.32,2508.6x
+latency,t_mutate_median_us,3097.26,1.16,2670.1x
+hysteresis,k4_recovery_duration_s,11.67,93.33,8.0x lockout

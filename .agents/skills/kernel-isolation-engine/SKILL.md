@@ -156,6 +156,16 @@ sudo ip netns exec ns-attacker ping -c 2 10.10.0.10
    sudo bash ~/kernel-isolation-engine/topology/teardown_netns_cluster.sh
    ```
 
+5. **Run Quantitative Cluster Benchmarks**:
+   ```bash
+   sudo bash ~/kernel-isolation-engine/benchmarks/run_cluster_benchmarks.sh
+   ```
+   **Recorded Empirical Results (16-Node Enterprise Mesh)**:
+   - **Blast-Radius Confinement ($\mathcal{B}_{\text{confine}}$)**: **$100.0\%$** (8/8 service paths completely unaffected).
+   - **16-Port Policy Mutation Latency ($T_{\text{mutate}}$)**: Mean **$1.32\,\mu\text{s}$** ($P_{50} = 1.16\,\mu\text{s}$, $P_{95} = 1.73\,\mu\text{s}$) vs Linux `iptables` **$3,311.39\,\mu\text{s}$** (**$2,508.6\times$ faster**).
+   - **Anti-Flapping Hysteresis Dynamics ($2^{k-1}$)**: $8.0\times$ lockout duration at $k=4$ ($93.33\,\text{s}$ vs $11.67\,\text{s}$), $16.0\times$ lockout at $k=5$ ($186.67\,\text{s}$).
+   - **Generated Artifacts**: `benchmarks/results/cluster_benchmark.csv`, `latex_cluster_table.tex`, `CLUSTER_BENCHMARK_REPORT.md`.
+
 ---
 
 ## 6. Critical Guidelines for Future Agents
@@ -163,6 +173,7 @@ sudo ip netns exec ns-attacker ping -c 2 10.10.0.10
 - **Verifier Bounds**: Always bounds-check every header before dereferencing: `(void *)(hdr + 1) <= data_end`.
 - **Bridge Member Ports**: Inter-container forwarded traffic crosses member ports (`veth-*-br`) directly without hitting `br-xdp`'s RX queue. Attach Generic XDP directly to member ports, and avoid attaching to `br-xdp` concurrently to prevent Netlink `EEXIST` (File exists) upper/slave conflicts.
 - **SKB Mode**: Virtual bridge and veth interfaces require Generic SKB mode (`XDP_FLAGS_SKB_MODE = 1 << 1`, value `2`). Do not use `BPF.XDP_FLAGS_SKB_MODE` as BCC's Python class does not expose kernel `if_link.h` mode constants directly.
+- **BCC Map Ctypes Requirement**: When writing to BCC maps (e.g. `policy_map[k] = v`), both `k` and `v` must be explicit `ctypes.c_uint32` instances to prevent `TypeError: byref() argument must be a ctypes instance, not 'int'`.
 - **BCC Package**: In Ubuntu APT the package is `python3-bpfcc`, imported as `from bcc import BPF`.
 - **Root Context**: Python packages required by root must be installed system-wide (`sudo pip3 install ...`).
 - **User Executes**: Never execute long-running interactive loaders in background tasks; provide clean commands for the user's terminal.
