@@ -682,3 +682,4 @@ Q5: How does this scale to 100 Gbps links?   Q10: Can this protect against Layer
 - [ ] Browser opened to `http://localhost:8000` (FastAPI Presentation Deck).
 - [ ] Browser opened to `file:///home/daemon_targaryen/kernel-isolation-engine/presentation/interactive_slides.html`.
 - [ ] Master thesis PDF and LaTeX tables ready for reference.
+

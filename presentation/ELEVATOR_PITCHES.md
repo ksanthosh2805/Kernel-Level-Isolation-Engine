@@ -69,3 +69,4 @@ This guide provides verbatim oral presentation scripts tailored for the Capstone
 - **What they care about**: Kubernetes compatibility, Docker overhead, CPU consumption, latency impact on microservices, and operational feasibility.
 - **Your Answer**:
   > *"User-space proxies like Envoy or Istio introduce 2 to 5 milliseconds of serialization delay and consume substantial RAM per sidecar. Our architecture runs entirely in Linux network namespaces with zero container runtime daemon overhead, consuming less than 11 megabytes of total RAM for 16 microservices. Kernel policy mutation takes 1.32 microseconds atomically via `bpf_map_update_elem()`, requiring no service restarts, no connection drops, and zero downtime."*
+

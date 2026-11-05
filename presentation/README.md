@@ -74,3 +74,4 @@ During your defense, after presenting Slide 17/18, switch to your live terminal 
 4. **Trigger Attack & Instant Neutralization**:
    - In UI, click **Volumetric SYN Flood** $\rightarrow$ Watch trust score decay to 0.0%, state badge switch to `QUARANTINED [DROP]`, and $T_{\text{isolate}} < 30\,\mu\text{s}$.
    - Click **Emergency Neutralize** $\rightarrow$ Watch process-group `killpg` terminate the flood and restore baseline in microseconds.
+
