@@ -118,3 +118,6 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 9. **Continuous Conversational Intelligence & Decision Rationale Logging**:
    - Every strategic discussion, user instruction, faculty recommendation, architectural trade-off, and conversational output must be recorded simultaneously in `PROJECT_KNOWLEDGE_BASE.md` (Section 14), `PROJECT_CHANGELOG.md`, and `.agents/state/project_state.json`.
    - Never lose the operational *context* and *reasoning* behind decisions (e.g. why 16 nodes, why pure Linux `ip netns` over Docker in VirtualBox, why Ideas A, B, and C are unified into a 3-layer stack, and why branches `v1`, `v2`, `academic-presentation` were structured). Future agents must inherit complete conversational intelligence without amnesia.
+10. **Simple One-Line Git Commit Messages**:
+   - Always use simple, concise one-line commit messages (e.g. `feat: add IEEE paper manuscript`, `chore: update conscience`). Avoid long multi-sentence commit messages.
+
