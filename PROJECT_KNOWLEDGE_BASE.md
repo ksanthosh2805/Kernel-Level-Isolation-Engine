@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-05 23:41:25)**: Option A Complete: Pushed Capstone Viva Defense Presentation Package to remote GitHub branch academic-presentation. *Next*: Presentation materials and full Version 1.0 & Version 2.0 architectures fully documented and synchronized on GitHub.
+- **Latest Checkpoint (2026-11-06 00:29:11)**: Add IEEE conference paper manuscript (paper.tex) on branch academic-presentation. *Next*: User to review paper or instruct to push to remote.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**

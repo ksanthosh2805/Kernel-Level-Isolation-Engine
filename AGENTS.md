@@ -71,7 +71,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-05 23:41:25)**: Option A Complete: Pushed Capstone Viva Defense Presentation Package to remote GitHub branch academic-presentation. *Next*: Presentation materials and full Version 1.0 & Version 2.0 architectures fully documented and synchronized on GitHub.
+- **Latest Checkpoint (2026-11-06 00:29:11)**: Add IEEE conference paper manuscript (paper.tex) on branch academic-presentation. *Next*: User to review paper or instruct to push to remote.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
