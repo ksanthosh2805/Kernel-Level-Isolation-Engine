@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-05 23:53:01)**: Created branch v3 from v2 to establish clean foundation for Version 3.0 development. *Next*: User to specify Version 3.0 requirements and architectural changes.
+- **Latest Checkpoint (2026-11-06 00:15:07)**: Version 3.0 Scope Defined: Any-to-Any Dynamic Threat Matrix & 5 Multi-Vector Threat Engines (SYN, UDP, Xmas, Port Scan, Low-and-Slow). *Next*: Phase 3.1: Author kernel/xdp_isolation_v3.c with L4 UDP and bitwise TCP flag inspection.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**
@@ -632,6 +632,20 @@ This section preserves the complete conversational intelligence, faculty feedbac
   - Executed `git checkout -b v3` from `v2` commit `5cdc810`.
   - Branch `v3` inherits 100% of Version 2.0 files, including the 16-node topology, eBPF datapath v2, swarm trust daemon, real-time presentation plane, and quantitative benchmark suite.
 * **Milestone State**: **Branch `v3` active and ready for Version 3.0 enhancements.**
+
+#### 14.21 Version 3.0 Scope Defined: Any-to-Any Dynamic Threat Matrix & Multi-Vector Engine (2026-11-06 00:10)
+* **Strategic Direction & User Mandate**:
+  1. **Any-to-Any Attack Deployment**: Move beyond static dedicated attacker pods to allow ANY of the 16 nodes to attack ANY target node, realistically modeling compromised insider pods and lateral privilege escalation.
+  2. **5 Multi-Vector Attack Engines**:
+     - Vector 1: Volumetric TCP SYN Flood
+     - Vector 2: Volumetric Connectionless UDP Flood (pre-stack drop before socket lookup)
+     - Vector 3: Malformed TCP Flag Abuse (Xmas: `FIN+URG+PSH`, Null, FIN)
+     - Vector 4: Fast Horizontal/Vertical Port Reconnaissance (`nmap -sS`)
+     - Vector 5: Low-and-Slow Stealth Reconnaissance (Shannon Port Entropy evasion)
+  3. **Shannon Entropy Detection**: Add entropy calculation $H(X) = -\sum p(x) \log_2 p(x)$ into the control daemon to detect stealthy low-volume reconnaissance that evades raw PPS thresholds.
+  4. **Dynamic Presentation Plane**: Integrate an interactive Any-to-Any Threat Matrix Controller in the web UI and redirect Canvas particle flow dynamically across arbitrary pairs.
+  5. **Parked Item (Hybrid Docker Wrapper)**: Retain pure `ip netns` (<11 MB RAM) for precision microsecond benchmarking; document Docker Compose container wrapper for future post-v3.0 implementation.
+* **Next Action**: Execute Phase 3.1: Author enhanced kernel datapath `kernel/xdp_isolation_v3.c` supporting UDP and bitwise TCP flag inspection.
 
 
 

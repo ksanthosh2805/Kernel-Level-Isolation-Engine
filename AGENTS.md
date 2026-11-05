@@ -71,7 +71,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-05 23:53:01)**: Created branch v3 from v2 to establish clean foundation for Version 3.0 development. *Next*: User to specify Version 3.0 requirements and architectural changes.
+- **Latest Checkpoint (2026-11-06 00:15:07)**: Version 3.0 Scope Defined: Any-to-Any Dynamic Threat Matrix & 5 Multi-Vector Threat Engines (SYN, UDP, Xmas, Port Scan, Low-and-Slow). *Next*: Phase 3.1: Author kernel/xdp_isolation_v3.c with L4 UDP and bitwise TCP flag inspection.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
@@ -99,6 +99,14 @@ To ensure that knowledge, state, and audit history persist even when the workspa
   - **Step 3 (Swarm Trust Decay Daemon)**: **COMPLETE & VERIFIED LIVE [OK]**. Closed-loop ring buffer consumer with $2^{k-1}$ repeat-offender anti-flapping hysteresis ($P \times 2^{k-1}$, $R_{\text{heal}} / 2^{k-1}$) and zero collateral degradation to legitimate nodes.
   - **Step 4 (16-Node 4x4 Presentation Plane)**: **COMPLETE & VERIFIED LIVE [OK]**. FastAPI WebSocket server (`dashboard/cluster_app.py`), dark-mode UI (`dashboard/static/cluster.html`), batched Canvas 2D particle visualizer, dynamic throughput vs discard rate curves, and one-click attack simulations with instantaneous process-group neutralization.
   - **Step 5 (Cluster Quantitative Benchmarking & IEEE/ACM LaTeX Report)**: **COMPLETE & VERIFIED LIVE [OK]**. Quantitative Blast-Radius Confinement Ratio ($\mathcal{B}_{\text{confine}} = \mathbf{100.0\%}$ across 8 inter-tier paths), multi-port eBPF map mutation latency ($T_{\text{mutate}} = \mathbf{1.32\,\mu\text{s}}$ vs $3,311.39\,\mu\text{s}$ for `iptables`, $\mathbf{2,508.6\times}$ faster), and $2^{k-1}$ anti-flapping hysteresis lockout ($\mathbf{8.0\times}$ at $k=4$, $\mathbf{16.0\times}$ at $k=5$). LaTeX tables, CSV metrics, and academic report generated in `benchmarks/results/`.
+- **Phase 6 (v3.0) Active Development**: **IN PROGRESS (Branch: v3)**
+  - **Core Vision**: The Any-to-Any Dynamic Threat Matrix & Multi-Vector Engine.
+  - **Step 1 (Kernel Datapath Upgrade)**: `kernel/xdp_isolation_v3.c` supporting L4 UDP, bitwise TCP flag inspection (Xmas, Null, FIN, RST), and extended 32-byte `flow_event_t`.
+  - **Step 2 (Multi-Vector Attack Generator)**: `topology/attack_matrix_generator.py` supporting SYN, UDP, Xmas, fast port reconnaissance, and low-and-slow stealth scans from ANY of the 16 nodes against ANY target node.
+  - **Step 3 (Control Plane Shannon Entropy Heuristics)**: `daemon/cluster_daemon_v3.py` incorporating port distribution entropy $H(\text{Ports})$ to catch low-and-slow attacks, with dynamic $2^{k-1}$ hysteresis.
+  - **Step 4 (Presentation Plane Threat Matrix Controller)**: Interactive Any-to-Any UI controls in `dashboard/cluster_app.py` and dynamic particle redirection.
+  - **Step 5 (Quantitative Threat Matrix Benchmarking)**: Arbitrary pair confinement ($\mathcal{B}_{\text{confine}}$) and multi-vector latency ($T_{\text{isolate}}$).
+  - **Parked Scope Item**: Hybrid Docker Runtime Wrapper (deferred to post-v3.0).
 
 ---
 

@@ -255,4 +255,32 @@ The Version 2.0 architecture was evaluated across all 16 microservices under con
 | **Anti-Flapping Evasion Containment ($k=4$)** | Linear Flapping ($11.67\,\text{s}$) | **`93.33 s`** | **$8.0\times$ Exponential Hysteresis Lockout** |
 | **Anti-Flapping Evasion Containment ($k=5$)** | Linear Flapping ($11.67\,\text{s}$) | **`186.67 s`** | **$16.0\times$ Exponential Hysteresis Lockout** |
 
+---
+
+## 13. Version 3.0 Architecture: Any-to-Any Dynamic Attack Matrix & Multi-Vector Engine
+
+### 13.1 Research Motivation & Objective
+Version 3.0 advances beyond static threat topology (where dedicated attacker pods attack fixed targets) to establish an **Any-to-Any Dynamic Threat Matrix**:
+1. **Dynamic Threat Injection**: Any of the 16 microservice pods (Web, API, DB, Client) can be designated as the attacker source, modeling compromised insider pods and lateral pivoting.
+2. **Multi-Vector Threat Portfolio**: Expands beyond TCP SYN floods to include 5 distinct threat classes:
+   - **Vector 1**: Volumetric TCP SYN Flood (`hping3 -S`)
+   - **Vector 2**: Volumetric Connectionless UDP Flood (`hping3 --udp`)
+   - **Vector 3**: Malformed TCP Flag Abuse (Xmas: `FIN+URG+PSH`, Null, FIN floods)
+   - **Vector 4**: Fast Horizontal/Vertical Port Reconnaissance (`nmap -sS`)
+   - **Vector 5**: Low-and-Slow Stealth Reconnaissance (Entropy Evasion)
+3. **Shannon Port & Target Distribution Entropy**:
+   $$H(\text{Ports}) = -\sum_{i=1}^{M} p(i) \log_2 p(i)$$
+   Detects low-volume stealth scans that attempt to fly beneath raw packet-per-second thresholds.
+4. **Interactive Threat Matrix Controller**: Dynamic UI and CLI controls allowing operators to configure arbitrary (Source $\rightarrow$ Target) pairs, vector, and intensity with real-time particle redirection.
+
+---
+
+## 14. Future Horizons: Hybrid Docker Runtime Wrapper (Parked in Scope)
+
+- **Architecture**: A dual-profile deployment engine providing both:
+  - **High-Precision Scientific Profile (Default)**: Pure Linux network namespaces (`ip netns`) consuming $<11\,\text{MB}$ RAM with zero background daemon jitter, ideal for microsecond academic benchmarks.
+  - **Enterprise Demonstration Profile (Docker Compose)**: Docker container wrapper mapping `veth` pairs to the XDP driver hook, demonstrating zero-trust isolation for standard OCI container images.
+- **Status**: Documented in project scope; implementation deferred to post-v3.0.
+
+
 
