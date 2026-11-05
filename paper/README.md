@@ -53,3 +53,4 @@ xdg-open paper.pdf &
 | **Anti-Flapping Evasion Lockout ($k=5$)** | Linear Flapping ($11.67\,\text{s}$) | **`186.67 s`** | **$16.0\times$ Exponential Hysteresis Lockout** |
 | **Softirq CPU Load under Volumetric Flood** | `95.71%` (Saturated) | **`65.84%` (Bounded)** | **-29.87% CPU Cycles Saved** |
 | **Legitimate TCP Retransmissions** | `1,434` retransmits | **`232` retransmits** | **$6.18\times$ Fewer Dropped Packets** |
+
