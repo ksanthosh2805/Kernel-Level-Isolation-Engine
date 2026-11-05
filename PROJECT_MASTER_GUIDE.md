@@ -227,3 +227,16 @@ In an $N$-node multi-tenant mesh ($N = 16$), the blast-radius confinement ratio 
 \end{equation}
 
 When $\mathcal{B}_{\text{confine}} = 1.0$ ($100\%$), isolating a compromised container incurs **zero throughput disruption** across all remaining $N-1$ uncompromised nodes.
+
+---
+
+## 11. Version 2.0 Architectural Modules & Roadmap Execution
+
+| Step | Component | Key Files | Capabilities & Innovations | Status |
+|---|---|---|---|---|
+| **Step 1** | 16-Node Microservice Topology | [`topology/setup_netns_cluster.sh`](file:///home/daemon_targaryen/kernel-isolation-engine/topology/setup_netns_cluster.sh), [`teardown_netns_cluster.sh`](file:///home/daemon_targaryen/kernel-isolation-engine/topology/teardown_netns_cluster.sh) | 4×4 multi-tier symmetric mesh on `10.20.0.0/24` (Web, API, DB, Clients, Attackers). Zero Docker overhead (<11 MB RAM). | **COMPLETE & VERIFIED [OK]** |
+| **Step 2** | 16-Port eBPF Datapath & Controller | [`kernel/xdp_isolation_v2.c`](file:///home/daemon_targaryen/kernel-isolation-engine/kernel/xdp_isolation_v2.c), [`daemon/cluster_loader.py`](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/cluster_loader.py) | Canonical 65k `policy_map`, 64-bit East-West matrix, multi-port generic XDP binder. Verified $10.59\,\mu\text{s}$ map mutation and 100% driver drop. | **COMPLETE & VERIFIED [OK]** |
+| **Step 3** | Swarm Trust Decay Daemon | [`daemon/cluster_daemon.py`](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/cluster_daemon.py) | Closed-loop 32-byte ring buffer consumer, $2^{k-1}$ repeat-offender anti-flapping hysteresis ($P \times 2^{k-1}$, $R_{\text{heal}} / 2^{k-1}$), coordinated multi-attacker flood aggregation. | **COMPLETE & VERIFIED LIVE [OK]** |
+| **Step 4** | 4×4 Matrix Presentation Plane | [`dashboard/cluster_app.py`](file:///home/daemon_targaryen/kernel-isolation-engine/dashboard/cluster_app.py), [`dashboard/static/cluster.html`](file:///home/daemon_targaryen/kernel-isolation-engine/dashboard/static/cluster.html) | Real-time dark-mode cluster UI, 4-tier matrix card grid, live particle deflection for East-West lateral scan interception, one-click attack lab, and sub-microsecond audit log. | **COMPLETE & VERIFIED LIVE [OK]** |
+| **Step 5** | Cluster Benchmarking & Confinement Proof | [`benchmarks/benchmark_cluster.py`](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_cluster.py) | Blast-radius confinement ratio ($\mathcal{B}_{\text{confine}}$) evaluation, multi-port eBPF map mutation latency, cyclic evasion defense quantification, IEEE/ACM publication tables. | **READY FOR IMPLEMENTATION** |
+

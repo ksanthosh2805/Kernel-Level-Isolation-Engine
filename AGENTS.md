@@ -29,9 +29,12 @@ Before modifying or executing any code, consult these documents:
 - [kernel/](file:///home/daemon_targaryen/kernel-isolation-engine/kernel/)
   - [xdp_isolation_p1.c](file:///home/daemon_targaryen/kernel-isolation-engine/kernel/xdp_isolation_p1.c): Phase 1 static XDP packet filter (Ethernet/IPv4 parsing, `policy_map`, and `drop_counter_map`).
   - [xdp_isolation_p2.c](file:///home/daemon_targaryen/kernel-isolation-engine/kernel/xdp_isolation_p2.c): Phase 2 dynamic XDP filter with L4 TCP/UDP parsing, SYN flag inspection, probabilistic suspect throttling, and ring buffer event streaming.
+  - [xdp_isolation_v2.c](file:///home/daemon_targaryen/kernel-isolation-engine/kernel/xdp_isolation_v2.c): Phase 5 (v2.0) 16-port high-density eBPF datapath with canonical 65k `policy_map`, 64-bit East-West matrix (`east_west_matrix`), and wire-speed ring buffer telemetry.
 - [daemon/](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/)
   - [phase1_loader.py](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/phase1_loader.py): Phase 1 BCC loader and interactive CLI controller (`block <IP>`, `allow <IP>`, `status`).
   - [trust_daemon.py](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/trust_daemon.py): Phase 2 closed-loop trust decay daemon consuming the eBPF ring buffer.
+  - [cluster_loader.py](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/cluster_loader.py): Phase 5 (v2.0) 16-port generic XDP loader and interactive CLI controller with sub-microsecond map mutation.
+  - [cluster_daemon.py](file:///home/daemon_targaryen/kernel-isolation-engine/daemon/cluster_daemon.py): Phase 5 (v2.0) closed-loop swarm trust decay daemon with $2^{k-1}$ repeat-offender hysteresis.
 
 - [topology/](file:///home/daemon_targaryen/kernel-isolation-engine/topology/)
   - [setup_netns.sh](file:///home/daemon_targaryen/kernel-isolation-engine/topology/setup_netns.sh): Creates virtual bridge `br-xdp` (10.10.0.1) and 3 isolated network namespaces:
@@ -39,6 +42,8 @@ Before modifying or executing any code, consult these documents:
     - Node B (Legit): `ns-legit` -> `10.10.0.20`
     - Node C (Attacker): `ns-attacker` -> `10.10.0.30`
   - [teardown_netns.sh](file:///home/daemon_targaryen/kernel-isolation-engine/topology/teardown_netns.sh): Cleanly deletes `ns-victim`, `ns-legit`, `ns-attacker`, and `br-xdp`.
+  - [setup_netns_cluster.sh](file:///home/daemon_targaryen/kernel-isolation-engine/topology/setup_netns_cluster.sh): Creates virtual bridge `br-cluster` (`10.20.0.1/24`) and 16 isolated enterprise microservice namespaces (Web, API, DB, Clients, Attackers).
+  - [teardown_netns_cluster.sh](file:///home/daemon_targaryen/kernel-isolation-engine/topology/teardown_netns_cluster.sh): Cleanly tears down the 16 namespaces and `br-cluster`.
 - [dashboard/](file:///home/daemon_targaryen/kernel-isolation-engine/dashboard/): FastAPI application (`app.py`), Chart.js UI (`static/index.html`), obsidian dark mode (`static/css/style.css`), and animated topology consumer (`static/js/app.js`).
 - [benchmarks/](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/): Quantitative Benchmarking Suite & Academic Evaluation:
   - [benchmark_latency.py](file:///home/daemon_targaryen/kernel-isolation-engine/benchmarks/benchmark_latency.py): Microsecond $T_{\text{isolate}}$ benchmark comparing eBPF map mutation vs iptables rules over $N=100$ iterations.
@@ -64,7 +69,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-05 01:05:12)**: Enforced Continuous Conversational Context Logging across all Conscience Mechanisms. *Next*: Step 2: Author 16-port eBPF kernel datapath (kernel/xdp_isolation_v2.c) with LRU policy map and East-West matrix.
+- **Latest Checkpoint (2026-11-05 21:14:03)**: Version 2.0 Step 4 Verified Live: 16-Node Enterprise Presentation Plane fully operational with live WebSocket streaming, strict Zero-Trust score-to-state synchronization, 60 FPS batched canvas particle engine, and verified multi-vector attack/neutralize controls. *Next*: Implement Step 5: Quantitative Cluster Benchmarking Suite (benchmarks/benchmark_cluster.py) to measure Blast-Radius Confinement Ratio B_confine and generate IEEE/ACM LaTeX tables.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
@@ -86,10 +91,12 @@ To ensure that knowledge, state, and audit history persist even when the workspa
   - **DDoS CPU Survivability**: Peak CPU bounded at **$67.70\%$** (vs $77.50\%$ for iptables), softirq peak bounded at **$65.84\%$** (vs $95.71\%$ for iptables), and kernel load reduced by **$18.19\%$** ($63.93\%$ vs $82.12\%$).
   - **Legitimate Workload Retention**: TCP retransmissions reduced by **$6.18\times$** (**$232$** vs $1,434$ for iptables), ICMP RTT dropped to **$0.04\,\text{ms}$** (vs $0.06\,\text{ms}$ for iptables), with **$0.0\%$ packet loss**.
   - All CSV logs, LaTeX tables, and academic reports generated in `benchmarks/results/`.
-- **Phase 5 (v2.0) Active Development**: **IN PROGRESS**
-  - **16-Node Enterprise Microservice Mesh**: 4x4 multi-tier cluster (`10.20.0.0/24`) simulating Web, API, Database, Client, and Adversary tiers.
-  - **East-West Lateral Movement Micro-Isolation**: Intercept inter-container reconnaissance sweeps at driver hooks with zero blast-radius disruption to peaceful nodes.
-  - **Repeat-Offender Hysteresis Algorithm**: Exponential penalty scaling ($\text{Penalty} \times 2^{k-1}$) and throttled self-healing ($R_{\text{heal}} / 2^{k-1}$) against evasion loops.
+- **Phase 5 (v2.0) Active Development**: **STEPS 1–4 COMPLETE & VERIFIED LIVE [OK]**
+  - **Step 1 (16-Node Enterprise Microservice Mesh)**: **COMPLETE & VERIFIED [OK]**. 4x4 multi-tier cluster (`10.20.0.0/24`) simulating Web, API, Database, Client, and Adversary tiers in pure Linux `ip netns` (<11 MB RAM).
+  - **Step 2 (16-Port eBPF Datapath & Controller)**: **COMPLETE & VERIFIED [OK]**. Canonical 65k `policy_map`, 64-bit East-West matrix (`east_west_matrix`), wire-speed driver drops (~40 ns), and sub-microsecond map mutation ($10.59\,\mu\text{s}$).
+  - **Step 3 (Swarm Trust Decay Daemon)**: **COMPLETE & VERIFIED LIVE [OK]**. Closed-loop ring buffer consumer with $2^{k-1}$ repeat-offender anti-flapping hysteresis ($P \times 2^{k-1}$, $R_{\text{heal}} / 2^{k-1}$) and zero collateral degradation to legitimate nodes.
+  - **Step 4 (16-Node 4x4 Presentation Plane)**: **COMPLETE & VERIFIED LIVE [OK]**. FastAPI WebSocket server (`dashboard/cluster_app.py`), dark-mode UI (`dashboard/static/cluster.html`), batched Canvas 2D particle visualizer, dynamic throughput vs discard rate curves, and one-click attack simulations with instantaneous process-group neutralization.
+  - **Step 5 (Cluster Quantitative Benchmarking & IEEE/ACM LaTeX Report)**: **READY FOR IMPLEMENTATION**. Quantitative Blast-Radius Confinement Ratio ($\mathcal{B}_{\text{confine}}$), multi-port eBPF map mutation benchmarking ($T_{\text{mutate}}$), and academic publication tables.
 
 ---
 

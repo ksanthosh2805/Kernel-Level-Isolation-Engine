@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernel Zero-Trust Traffic Isolation Engine (v2.0) — 16-Node Enterprise Swarm Deck</title>
+    <meta name="description" content="Driver-level zero-trust micro-isolation engine powered by eBPF/XDP. Line-rate packet drops in nanoseconds, East-West blast-radius confinement, and repeat-offender hysteresis.">
+    <link rel="stylesheet" href="/static/css/cluster.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Header & Status Area -->
+    <header class="cluster-header">
+        <div class="brand-wrapper">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>KERNEL ZERO-TRUST ISOLATION ENGINE (v2.0)</h1>
+                <p>16-NODE ENTERPRISE MICROSERVICE MESH — eBPF / XDP DRIVER CONTROL PLANE</p>
+            </div>
+        </div>
+
+        <div class="header-status-area">
+            <a href="/static/index.html" class="btn-nav" title="Switch to Single-Tenant 3-Node View">⇄ Switch to 3-Node Deck</a>
+            <div id="engineModeBadge" class="badge badge-sim">
+                <span class="pulse-dot"></span> DETECTING eBPF DATAPATH...
+            </div>
+            <div id="connectionStatus" class="badge badge-sim">
+                <span class="pulse-dot"></span> <span id="connectionText">CONNECTING WS...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="dashboard-container">
+
+        <!-- Hero KPI Metrics Grid (6 Metrics) -->
+        <section class="kpi-grid">
+            <div class="kpi-card panel">
+                <div class="kpi-label"><span>🌐</span> Intercepted Frames</div>
+                <div id="statFrames" class="kpi-value">0</div>
+                <div class="kpi-subtext">NIC Driver Raw Ingress (`xdp_md`)</div>
+            </div>
+
+            <div class="kpi-card panel kpi-drops">
+                <div class="kpi-label"><span>🚨</span> Wire-Speed Drops</div>
+                <div id="statDrops" class="kpi-value">0</div>
+                <div class="kpi-subtext">Discarded in <span class="highlight">~40 ns</span> (Pre-`sk_buff`)</div>
+            </div>
+
+            <div class="kpi-card panel kpi-lateral">
+                <div class="kpi-label"><span>🛡️</span> East-West Drops</div>
+                <div id="statLateral" class="kpi-value">0</div>
+                <div class="kpi-subtext">Inter-Container Sweeps Intercepted</div>
+            </div>
+
+            <div class="kpi-card panel kpi-latency">
+                <div class="kpi-label"><span>⚡</span> Isolation Latency (T_iso)</div>
+                <div class="kpi-value">4.04 <span style="font-size: 1.05rem;">µs</span></div>
+                <div class="kpi-subtext"><span class="highlight">1,732× Faster</span> than iptables (7.0ms)</div>
+            </div>
+
+            <div class="kpi-card panel">
+                <div class="kpi-label"><span>🔁</span> Repeat-Offender Hysteresis</div>
+                <div id="statHysteresis" class="kpi-value">0 Nodes</div>
+                <div class="kpi-subtext">Penalty: <span class="highlight">2^(k-1)×</span> | Recovery: <span class="highlight">R/2^(k-1)</span></div>
+            </div>
+
+            <div class="kpi-card panel kpi-confinement">
+                <div class="kpi-label"><span>🎯</span> Blast-Radius Confinement</div>
+                <div id="statConfinement" class="kpi-value">100.0%</div>
+                <div class="kpi-subtext">Zero Collateral Degradation</div>
+            </div>
+        </section>
+
+        <!-- Interactive Control Deck & Attack Simulator -->
+        <section class="control-deck-grid">
+            <!-- Attack Simulation Triggers -->
+            <div class="control-panel panel">
+                <div class="panel-title-bar">
+                    <div class="panel-title"><span>⚔️</span> Live Attack Simulation Lab</div>
+                    <span class="badge badge-sim">Multi-Vector Scenarios</span>
+                </div>
+                <div class="attack-buttons-grid">
+                    <button id="btnAttackLateral" class="btn-attack btn-attack-lateral">
+                        <span class="btn-attack-title"><span>⚡</span> Lateral Reconnaissance</span>
+                        <span class="btn-attack-desc">ns-attk-lateral (10.20.0.51) scans ns-db-primary (1-200)</span>
+                    </button>
+
+                    <button id="btnAttackDdos" class="btn-attack btn-attack-ddos">
+                        <span class="btn-attack-title"><span>💥</span> Volumetric SYN Flood</span>
+                        <span class="btn-attack-desc">ns-attk-ddos (10.20.0.52) floods ns-web-01:80</span>
+                    </button>
+
+                    <button id="btnAttackBypass" class="btn-attack btn-attack-bypass">
+                        <span class="btn-attack-title"><span>🚨</span> Web-to-DB Direct Bypass</span>
+                        <span class="btn-attack-desc">ns-web-01 directly probes ns-db-primary (Policy violation)</span>
+                    </button>
+
+                    <button id="btnAttackStop" class="btn-attack btn-attack-stop">
+                        <span class="btn-attack-title"><span>🛑</span> Emergency Neutralize</span>
+                        <span class="btn-attack-desc">Kill attack processes & restore quiescent baseline</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- East-West Matrix Policy Configurator -->
+            <div class="control-panel panel">
+                <div class="panel-title-bar">
+                    <div class="panel-title"><span>🎛️</span> East-West Zero-Trust Matrix Configurator</div>
+                    <span class="badge badge-live">Atomic 64-Bit Composite Map</span>
+                </div>
+                <div class="ew-form">
+                    <div class="ew-selectors">
+                        <div class="ew-select-group">
+                            <label for="ewSrcPod">Source Pod</label>
+                            <select id="ewSrcPod" class="ew-select">
+                                <option value="10.20.0.51">ns-attk-lateral (10.20.0.51)</option>
+                                <option value="10.20.0.52">ns-attk-ddos (10.20.0.52)</option>
+                                <option value="10.20.0.11">ns-web-01 (10.20.0.11)</option>
+                                <option value="10.20.0.12">ns-web-02 (10.20.0.12)</option>
+                                <option value="10.20.0.21">ns-api-auth (10.20.0.21)</option>
+                                <option value="10.20.0.41">ns-client-alpha (10.20.0.41)</option>
+                            </select>
+                        </div>
+                        <div class="ew-select-group">
+                            <label for="ewDstPod">Target Pod</label>
+                            <select id="ewDstPod" class="ew-select">
+                                <option value="10.20.0.31">ns-db-primary (10.20.0.31)</option>
+                                <option value="10.20.0.32">ns-db-replica (10.20.0.32)</option>
+                                <option value="10.20.0.33">ns-redis-cache (10.20.0.33)</option>
+                                <option value="10.20.0.34">ns-elastic-search (10.20.0.34)</option>
+                                <option value="10.20.0.21">ns-api-auth (10.20.0.21)</option>
+                                <option value="10.20.0.11">ns-web-01 (10.20.0.11)</option>
+                            </select>
+                        </div>
+                        <div class="ew-select-group">
+                            <label for="ewAction">Policy Action</label>
+                            <select id="ewAction" class="ew-select">
+                                <option value="deny">DENY_LATERAL (Drop)</option>
+                                <option value="allow">ALLOW (Forward)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="btnApplyEw" class="btn-apply-ew">Commit Atomic East-West Rule to Kernel Map</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Animated East-West Traffic Flow Canvas -->
+        <section class="canvas-panel panel">
+            <div class="panel-title-bar">
+                <div class="panel-title"><span>📡</span> 16-Port Datapath Mesh & Real-Time Flow Particle Visualizer</div>
+                <span class="badge badge-live">10.20.0.0/24 Bridge Switch Fabric</span>
+            </div>
+            <div class="canvas-container">
+                <canvas id="flowCanvas"></canvas>
+            </div>
+        </section>
+
+        <!-- 16-Node Enterprise Microservice Mesh Cards (4 Tiers) -->
+        <section class="cluster-mesh-section">
+
+            <!-- TIER 1: WEB FRONTEND (10.20.0.11 - 10.20.0.14) -->
+            <div class="tier-section">
+                <div class="tier-header">
+                    <div class="tier-title-group">
+                        <span class="tier-badge tier-badge-web">TIER 1</span>
+                        <span class="tier-name">Public Web Frontend Tier</span>
+                        <span class="tier-desc">Ingress reverse proxies handling client HTTP/HTTPS requests</span>
+                    </div>
+                </div>
+                <div class="tier-nodes-row">
+                    <!-- ns-web-01 -->
+                    <div id="node-card-10-20-0-11" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🌐</span> ns-web-01</div>
+                                <div class="node-ip">10.20.0.11 (veth-w01-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Public Web Frontend 01 (Port 80/443)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.11" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.11" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.11" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-web-02 -->
+                    <div id="node-card-10-20-0-12" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🌐</span> ns-web-02</div>
+                                <div class="node-ip">10.20.0.12 (veth-w02-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Public Web Frontend 02 (Port 80/443)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.12" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.12" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.12" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-web-03 -->
+                    <div id="node-card-10-20-0-13" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🌐</span> ns-web-03</div>
+                                <div class="node-ip">10.20.0.13 (veth-w03-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Public Web Frontend 03 (Port 80/443)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.13" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.13" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.13" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-web-04 -->
+                    <div id="node-card-10-20-0-14" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🌐</span> ns-web-04</div>
+                                <div class="node-ip">10.20.0.14 (veth-w04-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Public Web Frontend 04 (Port 80/443)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.14" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.14" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.14" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIER 2: MICROSERVICE APIS (10.20.0.21 - 10.20.0.24) -->
+            <div class="tier-section">
+                <div class="tier-header">
+                    <div class="tier-title-group">
+                        <span class="tier-badge tier-badge-api">TIER 2</span>
+                        <span class="tier-name">Microservice Business Logic Tier</span>
+                        <span class="tier-desc">Inter-service East-West gRPC and REST internal services</span>
+                    </div>
+                </div>
+                <div class="tier-nodes-row">
+                    <!-- ns-api-auth -->
+                    <div id="node-card-10-20-0-21" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🔐</span> ns-api-auth</div>
+                                <div class="node-ip">10.20.0.21 (veth-a01-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Auth & Identity Microservice (Port 8081)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.21" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.21" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.21" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-api-order -->
+                    <div id="node-card-10-20-0-22" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>📦</span> ns-api-order</div>
+                                <div class="node-ip">10.20.0.22 (veth-a02-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Order Processing API (Port 8082)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.22" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.22" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.22" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-api-pay -->
+                    <div id="node-card-10-20-0-23" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>💳</span> ns-api-pay</div>
+                                <div class="node-ip">10.20.0.23 (veth-a03-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Payment Gateway API (Port 8083)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.23" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.23" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.23" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-api-user -->
+                    <div id="node-card-10-20-0-24" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>👤</span> ns-api-user</div>
+                                <div class="node-ip">10.20.0.24 (veth-a04-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">User Profile & Metadata API (Port 8084)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.24" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.24" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.24" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIER 3: CORE DATA STORE (10.20.0.31 - 10.20.0.34) -->
+            <div class="tier-section">
+                <div class="tier-header">
+                    <div class="tier-title-group">
+                        <span class="tier-badge tier-badge-data">TIER 3</span>
+                        <span class="tier-name">Core Persistence & Storage Tier</span>
+                        <span class="tier-desc">Confidential database clusters and in-memory caching stores</span>
+                    </div>
+                </div>
+                <div class="tier-nodes-row">
+                    <!-- ns-db-primary -->
+                    <div id="node-card-10-20-0-31" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🗄️</span> ns-db-primary</div>
+                                <div class="node-ip">10.20.0.31 (veth-d01-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">PostgreSQL Primary Cluster (Port 5432)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.31" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.31" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.31" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-db-replica -->
+                    <div id="node-card-10-20-0-32" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🗄️</span> ns-db-replica</div>
+                                <div class="node-ip">10.20.0.32 (veth-d02-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">PostgreSQL Read Replica (Port 5432)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.32" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.32" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.32" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-redis-cache -->
+                    <div id="node-card-10-20-0-33" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>⚡</span> ns-redis-cache</div>
+                                <div class="node-ip">10.20.0.33 (veth-d03-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Redis Session Cache (Port 6379)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.33" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.33" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.33" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-elastic-search -->
+                    <div id="node-card-10-20-0-34" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🔍</span> ns-elastic-search</div>
+                                <div class="node-ip">10.20.0.34 (veth-d04-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Elasticsearch Analytics (Port 9200)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.34" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.34" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.34" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIER 4: CLIENTS & ADVERSARIES (10.20.0.41-42, 51-52) -->
+            <div class="tier-section">
+                <div class="tier-header">
+                    <div class="tier-title-group">
+                        <span class="tier-badge tier-badge-threat">TIER 4</span>
+                        <span class="tier-name">Clients & Threat Pods</span>
+                        <span class="tier-desc">Legitimate consumer traffic generators alongside compromised adversary pods</span>
+                    </div>
+                </div>
+                <div class="tier-nodes-row">
+                    <!-- ns-client-alpha -->
+                    <div id="node-card-10-20-0-41" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>👤</span> ns-client-alpha</div>
+                                <div class="node-ip">10.20.0.41 (veth-c01-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Legitimate Consumer Workload Alpha</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.41" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.41" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.41" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-client-beta -->
+                    <div id="node-card-10-20-0-42" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>👤</span> ns-client-beta</div>
+                                <div class="node-ip">10.20.0.42 (veth-c02-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Legitimate Consumer Workload Beta</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.42" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.42" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.42" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-attk-lateral (Threat 1) -->
+                    <div id="node-card-10-20-0-51" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>🚨</span> ns-attk-lateral</div>
+                                <div class="node-ip">10.20.0.51 (veth-x01-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Compromised Pod (East-West Scanner)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.51" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.51" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.51" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+
+                    <!-- ns-attk-ddos (Threat 2) -->
+                    <div id="node-card-10-20-0-52" class="node-card trusted">
+                        <div class="node-card-top">
+                            <div>
+                                <div class="node-alias"><span>💥</span> ns-attk-ddos</div>
+                                <div class="node-ip">10.20.0.52 (veth-x02-br)</div>
+                            </div>
+                            <span class="badge badge-live node-state-badge">TRUSTED</span>
+                        </div>
+                        <div class="node-role-desc">Compromised Pod (Volumetric Flooder)</div>
+                        <div class="trust-bar-container">
+                            <div class="trust-bar-labels"><span>Trust Score</span><span class="trust-score-val">100.0%</span></div>
+                            <div class="trust-track"><div class="trust-fill fill-trusted" style="width: 100%;"></div></div>
+                            <div class="hysteresis-indicator"><span class="offense-k">k=0</span><span class="healing-rate-val">+6.0 pts/s</span></div>
+                        </div>
+                        <div class="node-stats-grid">
+                            <div class="stat-item"><span class="stat-label">PASS</span><span class="stat-val passes val-pass">0</span></div>
+                            <div class="stat-item"><span class="stat-label">DROPS</span><span class="stat-val drops val-drops">0</span></div>
+                            <div class="stat-item"><span class="stat-label">LAT DROP</span><span class="stat-val lat-drops val-lat">0</span></div>
+                        </div>
+                        <div class="node-actions">
+                            <button class="btn-action btn-block" data-ip="10.20.0.52" data-action="block">Block</button>
+                            <button class="btn-action btn-suspect" data-ip="10.20.0.52" data-action="suspect">Suspect</button>
+                            <button class="btn-action btn-allow" data-ip="10.20.0.52" data-action="allow">Allow</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lower Analytics Grid: Live Audit Stream & Chart.js Visualizers -->
+        <section class="bottom-analytics-grid">
+            <!-- Microsecond Audit Stream -->
+            <div class="panel" style="padding: 1.25rem;">
+                <div class="panel-title-bar">
+                    <div class="panel-title"><span>📜</span> Live eBPF Isolation Audit & Ring Buffer Stream</div>
+                    <span class="badge badge-live">Sub-Microsecond Latency Log</span>
+                </div>
+                <div id="auditStream" class="audit-stream-container" style="margin-top: 0.75rem;">
+                    <div class="audit-entry">
+                        <span class="audit-ts">00:00:00</span>
+                        <span class="audit-entity">SYSTEM</span>
+                        <span class="audit-msg">Awaiting eBPF datapath telemetry events...</span>
+                        <span class="audit-lat">[0.00 µs]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cluster Trust Distribution Chart -->
+            <div class="panel" style="padding: 1.25rem;">
+                <div class="panel-title-bar">
+                    <div class="panel-title"><span>📊</span> 16-Node Trust Score Distribution & Flapping Penalties</div>
+                    <span class="badge badge-live">Real-Time State Array</span>
+                </div>
+                <div class="chart-wrapper" style="margin-top: 0.75rem;">
+                    <canvas id="chartTrust"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Traffic Throughput & Quarantine Drops Line Chart -->
+        <section class="panel" style="padding: 1.25rem;">
+            <div class="panel-title-bar">
+                <div class="panel-title"><span>📈</span> Aggregate Datapath Ingress PPS vs Wire-Speed Driver Discard Rate</div>
+                <span class="badge badge-live">NIC Pre-sk_buff Telemetry Stream</span>
+            </div>
+            <div class="chart-wrapper" style="margin-top: 0.75rem;">
+                <canvas id="chartTraffic"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="cluster-footer">
+        Kernel-Level Zero-Trust Traffic Isolation Engine (v2.0) — Capstone Research Project &amp; Engineering Defense Deck<br>
+        Powered by eBPF/XDP driver hooks, 65k BPF Hash Policy Maps, and Closed-Loop Hysteresis Daemons.
+    </footer>
+
+    <!-- Presentation Plane Script -->
+    <script src="/static/js/cluster_app.js"></script>
+</body>
+</html>
+
