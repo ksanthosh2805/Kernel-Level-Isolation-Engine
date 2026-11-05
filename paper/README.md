@@ -7,8 +7,11 @@ This directory contains the complete, publication-ready **IEEE Conference Paper 
 
 ## 📁 Manuscript Files
 
-- [`paper.tex`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/paper.tex): Complete IEEE two-column LaTeX manuscript with all 8 academic sections, equations, tables, and empirical evaluations.
-- [`references.bib`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/references.bib): Complete BibTeX bibliography with seminal citations (CoNEXT, IEEE TNSM, NIST SP 800-207, ACM, etc.).
+- [`paper.tex`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/paper.tex): Complete IEEE two-column LaTeX manuscript structured to match the department/faculty reference template format (Sections I–VII, 27 numbered literature surveys, standalone TikZ architecture and benchmark figures, equations 1–17, and Result tables).
+- [`Reference_Template_Format_Paper.docx`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/Reference_Template_Format_Paper.docx): Publication-ready Microsoft Word document (.docx) formatted to match `Reference-template.docx` (exact title, authors, affiliations, headings, pseudocode Algorithm 1, mathematical equations, and Result tables).
+- [`references.bib`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/references.bib): Complete BibTeX bibliography with 27 seminal citations.
+- [`build_docx.py`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/build_docx.py): Python builder script that generates the `.docx` document.
+- [`build_paper.py`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/build_paper.py): Python builder script that regenerates `paper.tex`.
 
 ---
 
