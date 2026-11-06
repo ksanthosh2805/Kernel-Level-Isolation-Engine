@@ -71,7 +71,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-06 00:57:01)**: Pushed template-adapted IEEE paper and DOCX to GitHub branch academic-presentation. *Next*: Resume Version 3.0 development on branch v3 when ready.
+- **Latest Checkpoint (2026-11-06 10:39:34)**: Corrected Table I column overflow formatting in paper.tex. *Next*: User to recompile paper.tex in Overleaf and verify clean layout.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**

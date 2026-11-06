@@ -1,7 +1,7 @@
 {
   "project_name": "Kernel-Level Zero-Trust Network Traffic Isolation Engine",
   "version": "1.0.0",
-  "last_updated": "2026-11-06T00:57:01.404163",
+  "last_updated": "2026-11-06T10:39:34.297591",
   "active_phase": {
     "id": 5,
     "name": "Academic Presentation Complete",
@@ -103,6 +103,15 @@
     }
   },
   "recent_activity": [
+    {
+      "timestamp": "2026-11-06T10:39:34.297591",
+      "action": "CHECKPOINT_UPDATE",
+      "summary": "Corrected Table I column overflow formatting in paper.tex",
+      "files_touched": [
+        "paper/paper.tex",
+        "paper/build_paper.py"
+      ]
+    },
     {
       "timestamp": "2026-11-06T00:57:01.404163",
       "action": "CHECKPOINT_UPDATE",
@@ -244,16 +253,10 @@
       "action": "CHECKPOINT_UPDATE",
       "summary": "Resolved Attack Neutralization Bug: Implemented process-group termination (os.killpg), cross-namespace process sweeps, atomic kernel policy restoration to STATE_TRUSTED, and decoupled canvas flow particles from cumulative drop counters",
       "files_touched": []
-    },
-    {
-      "timestamp": "2026-11-05T19:44:43.095185",
-      "action": "CHECKPOINT_UPDATE",
-      "summary": "Version 2.0 Step 4 Complete: 16-Node 4x4 Real-Time Presentation Plane with FastAPI WebSockets, Dark-Mode Control Deck, and Animated East-West Traffic Flow Canvas",
-      "files_touched": []
     }
   ],
   "immediate_next_step": {
     "action": "NEXT_ACTION",
-    "description": "Resume Version 3.0 development on branch v3 when ready"
+    "description": "User to recompile paper.tex in Overleaf and verify clean layout"
   }
 }
