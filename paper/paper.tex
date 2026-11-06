@@ -483,9 +483,11 @@ Figure~\ref{fig:hysteresis_chart} depicts the anti-flapping hysteresis recovery 
 \centering
 \caption{INTER-TIER LATENCY AND BLAST-RADIUS MONITORING}
 \label{tab:blast_radius}
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|}
 \hline
-\textbf{Monitored Service Path} & \textbf{Baseline (ms)} & \textbf{XDP (ms)} & \textbf{Loss (\%)} & \textbf{Status} \\
+\textbf{Monitored Path} & \textbf{Baseline (ms)} & \textbf{XDP (ms)} & \textbf{Loss (\%)} & \textbf{Status} \\
 \hline
 Client-Alpha $\to$ Web-01 & 0.123 & 0.032 & 0.0\% & Confined \\
 Web-01 $\to$ API-Auth     & 0.068 & 0.022 & 0.0\% & Confined \\
@@ -496,7 +498,8 @@ API-Order $\to$ DB-Replica& 0.046 & 0.023 & 0.0\% & Confined \\
 Web-03 $\to$ API-Pay      & 0.044 & 0.022 & 0.0\% & Confined \\
 API-Pay $\to$ Redis-Cache & 0.054 & 0.025 & 0.0\% & Confined \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Table~\ref{tab:blast_radius} below shows the empirical latency and packet loss values for 8 critical inter-tier paths across four tiers during a volumetric attack. Under eBPF/XDP driver micro-isolation, all 8 benign service paths experienced zero packet loss (0.0\%) and maintained sub-millisecond round-trip times ($0.019\text{--}0.032$\,ms). The engine achieved a 100.0\% Blast-Radius Confinement Ratio ($\mathcal{B}_{\text{confine}} = 100.0\%$), proving that driver-level packet discarding completely prevents socket buffer queue exhaustion.
@@ -505,6 +508,8 @@ Table~\ref{tab:blast_radius} below shows the empirical latency and packet loss v
 \centering
 \caption{POLICY MUTATION LATENCY BENCHMARK}
 \label{tab:mutation_benchmark}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|l|c|c|c|}
 \hline
 \textbf{Metric} & \textbf{iptables} & \textbf{eBPF/XDP} & \textbf{Speedup} \\
@@ -514,7 +519,8 @@ Mutation Median ($P_{50}$)          & 3097.26~$\mu$s & \textbf{1.16~$\mu$s} & \t
 Mutation 95th Percentile ($P_{95}$) & 5000.57~$\mu$s & \textbf{1.73~$\mu$s} & \textbf{2890.5$\times$} \\
 Confinement Ratio ($\mathcal{B}$)   & 100.0\%        & \textbf{100.0\%}     & \textbf{Zero Blast} \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 The Table~\ref{tab:mutation_benchmark} presents the policy mutation latencies of Linux \texttt{iptables} versus the eBPF/XDP datapath across 16 IP entries. The maximum mutation latency was recorded under Netfilter ($P_{95} = 5,000.57\,\mu\text{s}$), whereas eBPF maintained sub-microsecond determinism ($P_{95} = 1.73\,\mu\text{s}$), achieving an overall mutation speedup of $\mathbf{2,508.6\times}$.
@@ -523,6 +529,8 @@ The Table~\ref{tab:mutation_benchmark} presents the policy mutation latencies of
 \centering
 \caption{ANTI-FLAPPING HYSTERESIS DYNAMICS}
 \label{tab:hysteresis_table}
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 \textbf{Cycle ($k$)} & \textbf{Multiplier} & \textbf{Penalty} & \textbf{Healing Rate} & \textbf{Recovery Time} \\
@@ -533,7 +541,8 @@ $k = 3$ & $4\times$  & 200.0 & $+1.50$\,pts/s & 46.67\,seconds \\
 $k = 4$ & $8\times$  & 400.0 & $+0.75$\,pts/s & \textbf{93.33\,seconds} \\
 $k = 5$ & $16\times$ & 800.0 & $+0.38$\,pts/s & \textbf{186.67\,seconds} \\
 \hline
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 The Table~\ref{tab:hysteresis_table} compares the penalty multipliers, effective scan penalties, healing rates, and quiescent recovery durations across successive violation cycles. In cycle $k=4$, the recovery duration escalates 8.0-fold from $11.67$\,s to $93.33$\,s, and in $k=5$ to $186.67$\,s, demonstrating that adversaries attempting evasion become trapped in quarantine indefinitely.
