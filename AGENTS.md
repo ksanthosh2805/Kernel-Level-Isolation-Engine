@@ -71,7 +71,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-06 10:39:34)**: Corrected Table I column overflow formatting in paper.tex. *Next*: User to recompile paper.tex in Overleaf and verify clean layout.
+- **Latest Checkpoint (2026-11-06 12:43:23)**: Generated complete IEEE 2-column editable Word document (.docx) with embedded figures. *Next*: User to review DOCX or push to GitHub.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
