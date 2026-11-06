@@ -7,10 +7,12 @@ This directory contains the complete, publication-ready **IEEE Conference Paper 
 
 ## 📁 Manuscript Files
 
+- [`Kernel_Isolation_Engine_IEEE_Paper.docx`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/Kernel_Isolation_Engine_IEEE_Paper.docx): **Full IEEE 2-Column Microsoft Word Document (.docx)** matching the Overleaf compiled PDF layout, complete with 2-column author block, embedded high-resolution figures (Figs 1–4), math equations (1–17), Table I auto-scaling, and all 27 references.
 - [`paper.tex`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/paper.tex): Complete IEEE two-column LaTeX manuscript structured to match the department/faculty reference template format (Sections I–VII, 27 numbered literature surveys, standalone TikZ architecture and benchmark figures, equations 1–17, and Result tables).
-- [`Reference_Template_Format_Paper.docx`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/Reference_Template_Format_Paper.docx): Publication-ready Microsoft Word document (.docx) formatted to match `Reference-template.docx` (exact title, authors, affiliations, headings, pseudocode Algorithm 1, mathematical equations, and Result tables).
+- [`Reference_Template_Format_Paper.docx`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/Reference_Template_Format_Paper.docx): Word document (.docx) formatted to match `Reference-template.docx` structure.
 - [`references.bib`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/references.bib): Complete BibTeX bibliography with 27 seminal citations.
-- [`build_docx.py`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/build_docx.py): Python builder script that generates the `.docx` document.
+- [`build_ieee_docx.py`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/build_ieee_docx.py): Python builder script that generates the complete IEEE 2-column Word document with embedded figures.
+- [`generate_figures.py`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/generate_figures.py): Script generating 300 DPI publication figures in `paper/figures/`.
 - [`build_paper.py`](file:///home/daemon_targaryen/kernel-isolation-engine/paper/build_paper.py): Python builder script that regenerates `paper.tex`.
 
 ---
