@@ -177,7 +177,7 @@ Sample 1:64 to Ringbuf           100% to Ringbuf                  100% to Ringbu
 
 ### 8. Verification History & Milestone Registry
 
-- **Latest Checkpoint (2026-11-06 12:43:23)**: Generated complete IEEE 2-column editable Word document (.docx) with embedded figures. *Next*: User to review DOCX or push to GitHub.
+- **Latest Checkpoint (2026-11-06 12:47:39)**: Pushed IEEE 2-column Word document and publication figures to GitHub branch academic-presentation. *Next*: Ready to proceed to Version 3.0 development on branch v3.
 - **Phase 0: Environment & Dependencies**:
   - Toolchain installed on Ubuntu 22.04 LTS: `clang`, `llvm`, `libbpf-dev`, `python3-bpfcc`, `bpftool`, `iproute2`, `iperf3`, `hping3`, `nmap`, `fastapi`, `uvicorn`, `websockets`.
   - **Status: VERIFIED [OK]**

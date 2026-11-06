@@ -71,7 +71,7 @@ To ensure that knowledge, state, and audit history persist even when the workspa
 
 ## 5. Current Project State & Milestones
 
-- **Latest Checkpoint (2026-11-06 12:43:23)**: Generated complete IEEE 2-column editable Word document (.docx) with embedded figures. *Next*: User to review DOCX or push to GitHub.
+- **Latest Checkpoint (2026-11-06 12:47:39)**: Pushed IEEE 2-column Word document and publication figures to GitHub branch academic-presentation. *Next*: Ready to proceed to Version 3.0 development on branch v3.
 - **Phase 0 (Environment Provisioning)**: **COMPLETE & VERIFIED [OK]**
   - Toolchain, headers, Clang, LLVM, BCC, FastAPI installed and ready.
 - **Phase 1 Setup & Verification**: **COMPLETE & VERIFIED [OK]**
